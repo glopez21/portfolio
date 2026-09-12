@@ -134,6 +134,40 @@
       m41n/clu5t3r/n4n0 (4l13n offline) — repo still pending, location
       to be confirmed with user. Remaining M7: public DNS + router
       port-forward (item 4).
+- [ ] **M7c — Public exposure (item 4, in progress — paused for the
+      night)**: Facts: Cloudflare zone had a PUBLIC wildcard
+      `*.4rch3.io → 192.168.1.33` (private IP published; currently
+      load-bearing — the router is a pure forwarder, so ALL LAN
+      *.4rch3.io resolution rides on it; m41n has /etc/hosts overrides
+      for apex/portal only, clu5t3r has none). Public IP 66.108.23.33
+      (not CGNAT; staticness unknown). Done so far: split-horizon
+      **dnsmasq deployed on clu5t3r 192.168.1.33:53**
+      (`address=/4rch3.io/192.168.1.33`, upstreams 1.1.1.1/9.9.9.9,
+      in homelab repo infrastructure compose — published on the
+      specific LAN IP because dockerd bridge DNS + systemd-resolved
+      hold other :53 binds). infrastructure/.env had gone EMPTY
+      (values only in running containers) — rebuilt from container
+      state (DOMAIN, CLOUDFLARE_EMAIL/API/TUNNEL_TOKEN). Homelab repo
+      unified 3-way (clu5t3r running tree + m41n snapshot merged at
+      b9e690a; conflicts: running tree won for traefik.yml [metrics
+      entrypoint] + composes [dnsmasq, siem.dev wazuh rule], m41n
+      docs won for INGRESS.md). Decisions: tunnel path chosen
+      (cloudflared already runs on proxy-net; ingress →
+      http://infrastructure-traefik-1:80 so Traefik routing +
+      middlewares stay in the loop; zero open ports, no DDNS needed);
+      dev.4rch3.io public records kept per user. CF_ACCESS_ENFORCE is
+      false (log-only) — needs Zero Trust Access app + TEAM/AUD/true
+      before admin.4rch3.io is meaningfully protected. Next steps
+      (awaiting user): (1) add 4 Public Hostnames in Zero Trust →
+      tunnel (4rch3.io, www, homelab, admin → HTTP
+      infrastructure-traefik-1:80 — auto-creates proxied CNAMEs), or
+      hand over a Zero Trust-scoped API token to do it via API;
+      (2) SSL/TLS → Full (strict); (3) router DHCP DNS → 192.168.1.33
+      (unblocks deleting the public wildcard; until then LAN keeps
+      riding the wildcard, tunnel names hairpin harmlessly);
+      (4) Access app for admin.4rch3.io → then set CF_ACCESS_TEAM/
+      AUD/ENFORCE on the verifier. Wildcard deletion + final public
+      verification = mine, after (1)+(3).
 
 ## Routing plan (agreed with user — execute at M7)
 
