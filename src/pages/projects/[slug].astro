@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+import { pillarColor, statusBadge, statusLabel } from '../../lib/meta';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('projects', ({ data }) => !data.draft);
+	return posts.map((post) => ({ params: { slug: post.id } }));
+}
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/projects');
+
+const entry = await getEntry('projects', slug);
+if (!entry) return Astro.redirect('/projects');
+
+const { title, pillar, tagline, status, stack, highlights, live, repo, path: projectPath } =
+	entry.data;
+
+const { Content } = await render(entry);
+---
+
+<Base title={`${title} — 4rch3.io`} description={tagline}>
+	<section class="page-head">
+		<div class="container">
+			<p class="breadcrumb mono">
+				<a href="/">~</a> / <a href="/projects">projects</a> / <span>{slug}</span>
+			</p>
+
+			<div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.2rem;">
+				<h1 style="margin:0">{title}</h1>
+				<span class={`badge ${statusBadge(status)}`}>{statusLabel[status]}</span>
+				<span
+					class="chip pillar"
+					style={`--pillar: ${pillarColor[pillar]}; color: var(--pillar)`}
+				>
+					{pillar.replace('-', ' / ')}
+				</span>
+			</div>
+
+			<p style="font-size:1.15rem; color: var(--text-dim); max-width:64ch;">
+				{tagline}
+			</p>
+
+			<div style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-top:1.2rem;">
+				{live && (
+					<a href={live} class="filter-btn" style="color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, var(--border));">
+						Live ↗
+					</a>
+				)}
+				{repo && (
+					<a href={repo} class="filter-btn" style="color: var(--text-dim);">
+						Source ↗
+					</a>
+				)}
+				{projectPath && (
+					<span class="chip mono" style="color: var(--text-mute);">
+						{projectPath}
+					</span>
+				)}
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="container prose">
+			{stack.length > 0 && (
+				<>
+					<h3>Stack</h3>
+					<div class="stack-chips" style="margin-bottom: 1.6rem;">
+						{stack.map((s) => <span class="chip">{s}</span>)}
+					</div>
+				</>
+			)}
+			{highlights.length > 0 && (
+				<>
+					<h3>Highlights</h3>
+					<ul class="spec-list">
+						{highlights.map((h) => <li>{h}</li>)}
+					</ul>
+					<br />
+				</>
+			)}
+
+			<h2>Overview</h2>
+			<Content />
+		</div>
+	</section>
+</Base>

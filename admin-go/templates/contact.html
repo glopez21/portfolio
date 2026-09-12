@@ -1,0 +1,35 @@
+{{template "base_head" (dict "Title" "Contact messages | Portfolio CMS" "BodyClass" "change-list")}}
+<div class="breadcrumbs"><a href="/admin/">Home</a> › Contact</div>
+<div id="content" class="colMS">
+  <h1>Contact messages</h1>
+  <div id="content-main">
+    <div id="changelist" class="module">
+      <div class="changelist-tools">
+        <span class="count">{{.Count}} message(s)</span>
+      </div>
+      {{if .Messages}}
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Messages}}
+          <tr>
+            <td class="nowrap">{{.Time}}</td>
+            <td>{{.Name}}</td>
+            <td><a href="mailto:{{.Email}}">{{.Email}}</a></td>
+            <td>{{.Subject}}</td>
+            <td class="message">{{.Message}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{else}}
+      <p class="help">No messages yet. Submissions to the contact form on the site will appear here.</p>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{template "base_foot" .}}

@@ -1,0 +1,51 @@
+name: 4rch3-portfolio
+
+services:
+  # ----- Static portfolio site (nginx serves frontend/) -----
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 4rch3-portfolio-web:latest
+    container_name: 4rch3-portfolio
+    restart: unless-stopped
+    ports:
+      # LAN-reachable: 0.0.0.0 by default. Override with PORTFOLIO_PORT.
+      - "${PORTFOLIO_PORT:-8095}:80"
+    depends_on:
+      - admin
+    # nginx reverse-proxies /admin/ to the Go admin container.
+
+  # ----- Go admin CMS (project CRUD, Django-admin-style) -----
+  admin:
+    build:
+      context: ./admin-go
+      dockerfile: Dockerfile
+    image: 4rch3-portfolio-admin:latest
+    container_name: 4rch3-portfolio-admin
+    restart: unless-stopped
+    environment:
+      ADMIN_ADDR: 0.0.0.0:8000
+      PROJECTS_DIR: /content/projects
+      DATA_DIR: /data
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      AI_QUOTES_DB: /quotes-instance/ai_quotes.db
+    volumes:
+      - admin_data:/data
+      - ./src/content/projects:/content/projects:rw   # shared content source of truth
+      # Directory mount (not file): sqlite needs to create its -journal in the
+      # parent dir, which a bare file mount's parent (/ in the container) is not.
+      - ../ai-quotes/instance:/quotes-instance:rw   # quote management (ai-quotes project)
+    ports:
+      # Optional direct admin access (also reachable via web at /admin/)
+      - "${PORTFOLIO_ADMIN_PORT:-8096}:8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8000/api/projects/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  admin_data:

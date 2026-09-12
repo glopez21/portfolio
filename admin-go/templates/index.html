@@ -1,0 +1,77 @@
+{{template "base_head" (dict "Title" "Home | Portfolio CMS" "BodyClass" "dashboard")}}
+<div class="breadcrumbs"><a href="/admin/">Home</a></div>
+<div id="content" class="colMS">
+  <h1>Project administration</h1>
+  <div id="content-main">
+    <div class="module" id="changelist">
+      <div class="module-header">
+        <h2>Projects ({{.Total}})</h2>
+        <a class="addlink" href="/admin/projects/add/">+ Add project</a>
+      </div>
+    </div>
+
+    {{range .Groups}}
+    <div class="module pillar-module" data-pillar="{{.Key}}">
+      <div class="module-header">
+        <h2 class="pillar-title">
+          <span class="pillar-dot pillar-{{.Key}}"></span>
+          {{pillarLabel .Key}}
+          <span class="pillar-count">{{len .Projects}}</span>
+        </h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th><th>Pillar</th><th>Status</th><th>Order</th><th>Featured</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Projects}}
+          <tr class="{{if .Featured}}featured-row{{end}}">
+            <th>
+              <a href="/admin/projects/{{.Slug}}/">{{.Title}}</a>
+              <div class="slug">{{if .Live}}live:{{.Live}}{{else}}{{.Pillar}} · {{.Slug}}{{end}}</div>
+            </th>
+            <td><span class="pillar-badge pillar-{{.Pillar}}">{{.Pillar}}</span></td>
+            <td><span class="status status-{{.Status}}">{{statusLabel .Status}}</span></td>
+            <td>{{.Order}}</td>
+            <td>{{if .Featured}}<span class="featured-yes">★</span>{{else}}<span class="featured-no">—</span>{{end}}</td>
+            <td class="actions">
+              <a class="changelink" href="/admin/projects/{{.Slug}}/">Change</a>
+              <a class="deletelink" href="/admin/projects/{{.Slug}}/delete/">Delete</a>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+    {{end}}
+    {{if quotesEnabled}}
+    <div class="module" id="changelist">
+      <div class="module-header">
+        <h2>Quotes (ai-quotes)</h2>
+        <a class="addlink" href="/admin/quotes/add/">+ Add quote</a>
+      </div>
+      <p class="help"><a href="/admin/quotes/">Manage the ai-quotes database →</a></p>
+    </div>
+    {{end}}
+    <div class="module" id="changelist">
+      <div class="module-header">
+        <h2>Contact messages</h2>
+        <a class="addlink" href="/admin/contact/">View messages →</a>
+      </div>
+      <p class="help">Contact-form submissions from the site are stored and readable here.</p>
+    </div>
+  </div>
+
+  <div id="content-related">
+    <div class="module">
+      <h2>Recent info</h2>
+      <p class="help">The CMS writes directly to the Markdown files the static site is built from.</p>
+      <div class="help-info">
+        <p>To publish edits to the live site, run <code>make sync</code> to rebuild the site container from this content.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{{template "base_foot" .}}

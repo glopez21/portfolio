@@ -1,0 +1,35 @@
+---
+import { pillarColor, statusBadge, statusLabel } from '../lib/meta';
+import type { Pillar } from '../content.config';
+
+interface Props {
+	title: string;
+	pillar: Pillar;
+	tagline: string;
+	status: string;
+	stack: string[];
+	slug: string;
+	featured?: boolean;
+}
+
+const { title, pillar, tagline, status, stack, slug } = Astro.props;
+---
+
+<a
+	href={`/projects/${slug}`}
+	class="card"
+	style={`--pillar: ${pillarColor[pillar]}`}
+	rel="noopener noreferrer"
+>
+	<div class="card-top">
+		<h3>{title}</h3>
+		<span class={`badge ${statusBadge(status)}`}>{statusLabel[status]}</span>
+	</div>
+	<p>{tagline}</p>
+	<div class="card-foot">
+		<div class="stack-chips">
+			{stack.map((s) => <span class="chip">{s}</span>)}
+		</div>
+		<span class="chip pillar">{pillar.replace('-', ' / ')}</span>
+	</div>
+</a>

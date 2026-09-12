@@ -1,0 +1,80 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+import { pillars, pillarMeta } from '../../content.config';
+import type { Pillar } from '../../content.config';
+
+const all = (await getCollection('projects'))
+	.filter((p) => !p.data.draft)
+	.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+const initialPillar = Astro.url.searchParams.get('pillar') as Pillar | null;
+---
+
+<Base title="Projects — 4rch3.io">
+	<section class="section">
+		<div class="container">
+			<p class="meta mono" style="margin-bottom:0.6rem">
+				<span class="prompt"></span>ls -1 projects <span class="caret"></span>
+			</p>
+			<h1 style="margin-bottom:0.8rem">All Projects</h1>
+			<p style="color: var(--text-dim); margin-bottom:1.5rem">
+				{all.length} projects across four engineering pillars.
+				Filter by domain below.
+			</p>
+
+			<div class="filters" id="filters">
+				<button class="filter-btn active" data-pillar="all">all</button>
+				{pillars.map((p) => (
+					<button
+						class="filter-btn"
+						data-pillar={p}
+						aria-pressed={initialPillar === p}
+						style={`color: var(--pillar-${p})`}
+					>
+						{pillarMeta[p].label}
+					</button>
+				))}
+			</div>
+
+			<div class="grid" id="project-grid">
+				{all.map((p) => (
+					<div data-pillar={p.data.pillar}>
+						<ProjectCard {...p.data} slug={p.id} />
+					</div>
+				))}
+			</div>
+
+			<p id="no-results" style="display:none; color: var(--text-mute); margin-top:2rem; font-style: italic;">
+				No projects match that filter.
+			</p>
+		</div>
+	</section>
+</Base>
+
+<script>
+	const buttons = document.querySelectorAll<HTMLButtonElement>('#filters .filter-btn');
+	const cards = document.querySelectorAll<HTMLElement>('#project-grid > div');
+	const noResults = document.getElementById('no-results')!;
+
+	const setFilter = (filter: string) => {
+		buttons.forEach((b) => b.classList.toggle('active', b.dataset.pillar === filter));
+		let count = 0;
+		cards.forEach((card) => {
+			const match = filter === 'all' || card.dataset.pillar === filter;
+			card.hidden = !match;
+			if (match) count++;
+		});
+		noResults.style.display = count === 0 ? 'block' : 'none';
+	};
+
+	buttons.forEach((btn) =>
+		btn.addEventListener('click', () => setFilter(btn.dataset.pillar!)),
+	);
+
+	// honour ?pillar= on load
+	const params = new URLSearchParams(location.search);
+	const init = params.get('pillar');
+	if (init) setFilter(init);
+</script>

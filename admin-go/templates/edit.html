@@ -1,0 +1,112 @@
+{{$title := "Change project"}}
+{{if .IsNew}}{{$title = "Add project"}}{{end}}
+{{template "base_head" (dict "Title" (printf "%s | Portfolio CMS" $title) "BodyClass" "change-form")}}
+<div class="breadcrumbs">
+  <a href="/admin/">Home</a> › <a href="/admin/projects/">Projects</a> › {{$title}}
+</div>
+<div id="content" class="colMS">
+  <h1>{{$title}}</h1>
+  <div id="content-main">
+    <form method="post" action="/admin/projects/{{if .IsNew}}new/{{else}}{{.Project.Slug}}/save/{{end}}">
+      <fieldset class="module aligned">
+        <div class="form-row">
+          <div>
+            <label for="id_slug">Slug:</label>
+            <input type="text" id="id_slug" name="slug" value="{{.Project.Slug}}" class="vTextField">
+            <div class="help">URL identifier — lowercase letters, numbers, hyphens.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_title">Title:</label>
+            <input type="text" id="id_title" name="title" value="{{.Project.Title}}" class="vTextField" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_tagline">Tagline:</label>
+            <input type="text" id="id_tagline" name="tagline" value="{{.Project.Tagline}}" class="vTextField">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_pillar">Pillar:</label>
+            <select id="id_pillar" name="pillar">
+              {{range $k, $v := .Pillars}}
+              <option value="{{$k}}" {{if eq $.Project.Pillar $k}}selected{{end}}>{{$k}}</option>
+              {{end}}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_status">Status:</label>
+            <select id="id_status" name="status">
+              {{range $k, $v := .Statuses}}
+              <option value="{{$k}}" {{if eq $.Project.Status $k}}selected{{end}}>{{$k}}</option>
+              {{end}}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_order">Order:</label>
+            <input type="number" id="id_order" name="order" value="{{.Project.Order}}" class="vIntegerField">
+            <div class="help">Lower = higher in listing.</div>
+          </div>
+        </div>
+        <div class="form-row form-row-checkbox">
+          <div>
+            <label for="id_featured">Featured:</label>
+            <input type="checkbox" id="id_featured" name="featured" {{if .Project.Featured}}checked{{end}}>
+            <label class="inline" for="id_featured">Show in the hero spotlight</label>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_path">Path:</label>
+            <input type="text" id="id_path" name="path" value="{{.Project.Path}}" class="vTextField">
+            <div class="help">Repo/project directory name (optional).</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_repo">Repo URL:</label>
+            <input type="text" id="id_repo" name="repo" value="{{.Project.Repo}}" class="vTextField">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_live">Live URL:</label>
+            <input type="text" id="id_live" name="live" value="{{.Project.Live}}" class="vTextField">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_stack">Stack (one per line):</label>
+            <textarea id="id_stack" name="stack" rows="4" class="vLargeTextField">{{.StackLines}}</textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_highlights">Highlights (one per line):</label>
+            <textarea id="id_highlights" name="highlights" rows="5" class="vLargeTextField">{{.HighlightIn}}</textarea>
+            <div class="help">Each line becomes a highlighted feature bullet.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_body">Body (Markdown narrative):</label>
+            <textarea id="id_body" name="body" rows="14" class="vLargeTextField">{{.Project.Body}}</textarea>
+          </div>
+        </div>
+      </fieldset>
+      <div class="submit-row">
+        <input type="submit" value="Save" class="default" name="_save">
+        {{if not .IsNew}}<a class="deletelink" href="/admin/projects/{{.Project.Slug}}/delete/">Delete</a>{{end}}
+        <a class="closelink" href="/admin/projects/">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{template "base_foot" .}}

@@ -1,0 +1,30 @@
+{{define "base_head"}}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{if .Title}}{{.Title}}{{else}}Portfolio CMS{{end}}</title>
+  <link rel="stylesheet" href="/admin-static/admin.css">
+</head>
+<body class="{{if .BodyClass}}{{.BodyClass}}{{else}}dashboard{{end}}">
+<div id="container">
+  <div id="header">
+    <div id="branding">
+      <h1 id="site-name"><a href="/admin/">Portfolio<span>CMS</span></a></h1>
+    </div>
+    <div id="user-tools">
+      Welcome, <strong>admin</strong>.
+      <a href="/admin/projects/">View projects</a>
+      {{if quotesEnabled}}<a href="/admin/quotes/">View quotes</a>{{end}}
+      <a href="/admin/contact/">View messages</a>
+      <a href="/admin/logout/">Log out</a>
+    </div>
+  </div>
+{{end}}
+
+{{define "base_foot"}}
+</div>
+</body>
+</html>
+{{end}}

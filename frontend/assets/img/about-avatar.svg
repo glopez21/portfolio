@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 440" role="img" aria-label="4rch3.io matrix logo">
+  <defs>
+    <linearGradient id="mzbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#060a10"/>
+      <stop offset="1" stop-color="#0d1420"/>
+    </linearGradient>
+    <radialGradient id="mzglow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#18d26e" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#18d26e" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="mzgrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#18d26e" opacity="0.07"/>
+    </pattern>
+    <linearGradient id="mzring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#18d26e"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="440" height="440" fill="url(#mzbg)"/>
+  <rect width="440" height="440" fill="url(#mzglow)"/>
+  <rect width="440" height="440" fill="url(#mzgrid)"/>
+
+  <path d="M40 56 V40 H56" fill="none" stroke="#18d26e" stroke-width="3" opacity="0.8"/>
+  <path d="M400 40 H384 V56" fill="none" stroke="#18d26e" stroke-width="3" opacity="0.8"/>
+  <path d="M40 384 V400 H56" fill="none" stroke="#18d26e" stroke-width="3" opacity="0.8"/>
+  <path d="M400 400 V384 H384" fill="none" stroke="#18d26e" stroke-width="3" opacity="0.8"/>
+
+  <text x="220" y="70" text-anchor="middle" font-family="monospace" font-size="12" letter-spacing="2" fill="#18d26e" opacity="0.5">01001101 01000001 01010100 01010010 01001001 01011000</text>
+
+  <g font-family="monospace" fill="#18d26e">
+    <text x="88"  y="48"  font-size="16" opacity="0.85">ア</text>
+    <text x="88"  y="100" font-size="16" opacity="0.7">カ</text>
+    <text x="88"  y="152" font-size="16" opacity="0.65">サ</text>
+    <text x="88"  y="204" font-size="16" opacity="0.5">タ</text>
+    <text x="88"  y="256" font-size="16" opacity="0.55">ナ</text>
+    <text x="88"  y="308" font-size="16" opacity="0.45">ハ</text>
+    <text x="88"  y="360" font-size="16" opacity="0.55">マ</text>
+    <text x="88"  y="412" font-size="16" opacity="0.3">ヤ</text>
+
+    <text x="214" y="64"  font-size="16" opacity="0.8">ア</text>
+    <text x="214" y="116" font-size="16" opacity="0.6">イ</text>
+    <text x="214" y="168" font-size="16" opacity="0.65">ス</text>
+    <text x="214" y="220" font-size="16" opacity="0.45">セ</text>
+    <text x="214" y="272" font-size="16" opacity="0.6">ソ</text>
+    <text x="214" y="324" font-size="16" opacity="0.5">タ</text>
+    <text x="214" y="376" font-size="16" opacity="0.55">チ</text>
+
+    <text x="344" y="52"  font-size="16" opacity="0.85">エ</text>
+    <text x="344" y="112" font-size="16" opacity="0.7">オ</text>
+    <text x="344" y="172" font-size="16" opacity="0.6">キ</text>
+    <text x="344" y="232" font-size="16" opacity="0.75">ケ</text>
+    <text x="344" y="292" font-size="16" opacity="0.45">コ</text>
+    <text x="344" y="352" font-size="16" opacity="0.6">シ</text>
+  </g>
+
+  <circle cx="220" cy="220" r="164" fill="none" stroke="#18d26e" stroke-width="1" opacity="0.22"/>
+  <circle cx="220" cy="220" r="150" fill="none" stroke="url(#mzring)" stroke-width="3" opacity="0.9"/>
+
+  <text x="220" y="218" text-anchor="middle" font-family="'Share Tech Mono', monospace" font-size="32" fill="#18d26e">4rch3.io</text>
+  <text x="203" y="253" text-anchor="middle" font-family="monospace" font-size="12" fill="#8b9cb3">_ boot system</text>
+  <text x="254" y="253" font-family="monospace" font-size="12" fill="#18d26e">█</text>
+
+  <text x="220" y="382" text-anchor="middle" font-family="monospace" font-size="11" letter-spacing="2" fill="#18d26e" opacity="0.35">1001 0101 1110 0110 1100 1010 0101 1110</text>
+</svg>

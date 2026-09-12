@@ -1,0 +1,20 @@
+{{template "base_head" (dict "Title" "Are you sure? | Portfolio CMS" "BodyClass" "delete-confirmation")}}
+<div class="breadcrumbs"><a href="/admin/">Home</a> › <a href="/admin/projects/">Projects</a> › {{.Title}}</div>
+<div id="content" class="colMS">
+  <h1>Delete project</h1>
+  <div id="content-main">
+    <div class="module delete-confirmation">
+      <h2>Are you sure?</h2>
+      <p>Are you sure you want to delete the project
+        <strong>{{.Title}}</strong> ({{.Pillar}})? This will remove the Markdown file
+        <code>{{.Slug}}.md</code> from the content source of truth.</p>
+      <form method="post" action="/admin/projects/{{.Slug}}/del/">
+        <div class="submit-row">
+          <input type="submit" value="Yes, I'm sure" class="default">
+          <a class="closelink" href="/admin/projects/">No, take me back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{template "base_foot" .}}

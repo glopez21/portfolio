@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About — 4rch3.io">
+	<section class="section">
+		<div class="container" style="max-width:72ch;">
+			<p class="meta mono" style="margin-bottom:0.6rem">
+				<span class="prompt"></span>cat about.md <span class="caret"></span>
+			</p>
+			<h1 style="margin-bottom:1rem">About this portfolio</h1>
+
+			<p class="lead" style="color: var(--text-dim); font-size:1.05rem; margin-bottom:2rem;">
+				A continuously deployed engineering portfolio — not a zip file of
+				screenshots, but live systems running on a real homelab stack.
+			</p>
+
+			<div class="prose">
+				<h2>The infrastructure</h2>
+				<p>
+					This portfolio lives inside the
+					<span class="mono" style="color: var(--accent)">clu5t3r</span>
+					homelab: a small fleet of machines running Linux, connected
+					via a wired and wireless mesh, fronted by a Traefik
+					reverse proxy that routes every service to its own
+					<span class="mono" style="color: var(--accent-2)">*.4rch3.io</span>
+					subdomain.
+				</p>
+
+				<p>
+					A single deploy script (<code>deploy.sh</code>) manages
+					the entire lifecycle — build, configure, and run each
+					service with systemd, all over SSH in a single command.
+					No Terraform, no Ansible, just Bash and an SSH key.
+				</p>
+
+				<h2>The engineering philosophy</h2>
+				<p>
+					Every project is chosen to demonstrate a specific
+					credential — not a toy demo, but a complete,
+					end-to-end system that solves a problem someone
+					might actually have.
+				</p>
+
+				<p>The portfolio is organized around four equally-weighted pillars:</p>
+
+				<ul class="spec-list">
+					<li style="--pillar: var(--pillar-cybersecurity);">
+						<span style="color: var(--pillar-cybersecurity);">Cybersecurity</span> —
+						offensive & defensive research, SIEM/SOAR, honeypots, DFIR toolkits
+					</li>
+					<li style="--pillar: var(--pillar-ai-ml);">
+						<span style="color: var(--pillar-ai-ml);">AI / ML</span> —
+						from-scratch agents, RAG, eval harnesses, inference routers
+					</li>
+					<li style="--pillar: var(--pillar-python);">
+						<span style="color: var(--pillar-python);">Python</span> —
+						well-engineered applications and data tooling
+					</li>
+					<li style="--pillar: var(--pillar-rust);">
+						<span style="color: var(--pillar-rust);">Rust</span> —
+						systems work: zero-copy capture, eBPF, engines, CLIs
+					</li>
+				</ul>
+
+				<h2>Showcase-readiness</h2>
+				<p>A project is portfolio-ready when it has all of:</p>
+				<ol>
+					<li>A live deployable demo (port or container on the clu5t3r)</li>
+					<li>A screenshot or GIF showing the key capability</li>
+					<li>A README with architecture diagram + quick start</li>
+					<li>~200-word narrative: problem → approach → result</li>
+					<li>At least one automated test or verification path</li>
+				</ol>
+
+				<h2>The stack</h2>
+				<ul>
+					<li><strong>Astro</strong> — this site: static, fast, zero JS by default</li>
+					<li><strong>Traefik</strong> — reverse proxy + auto TLS</li>
+					<li><strong>Cloudflare</strong> — DNS + CDN + WAF</li>
+					<li><strong>systemd</strong> — service lifecycle on each node</li>
+					<li><strong>SSH + Bash</strong> — deployment pipeline</li>
+					<li><strong>Docker</strong> — where isolation is needed</li>
+					<li><strong>Forgejo</strong> — self-hosted git</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+</Base>

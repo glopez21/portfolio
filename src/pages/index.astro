@@ -1,0 +1,104 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+import { pillars, pillarMeta } from '../content.config';
+import type { Pillar } from '../content.config';
+
+const all = (await getCollection('projects')).filter((p) => !p.data.draft);
+
+const byPillar = (pillar: Pillar) =>
+	all
+		.filter((p) => p.data.pillar === pillar)
+		.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+const featured = all.filter((p) => p.data.featured);
+---
+
+<Base title="4rch3.io — Project Portfolio">
+	<!-- Hero -->
+	<section class="hero">
+		<div class="container">
+			<p class="meta mono">
+				<span class="prompt"></span>neofetch --portfolio <span class="caret"></span>
+			</p>
+			<h1>Engineering<br />across four pillars</h1>
+			<p class="lead">
+				A diversified portfolio built on real infrastructure — deployed
+				behind a homelab stack, not just a GitHub link. Each project
+				spans a distinct engineering domain.
+			</p>
+			<div class="filters" style="margin-top:2rem">
+				<a href="/projects" class="filter-btn">view all →</a>
+				{pillars.map((p) => (
+					<a
+						href={`/projects?pillar=${p}`}
+						class="filter-btn"
+						style={`--pillar: ${pillarMeta[p].label}; color: var(--pillar-${p})`}
+					>
+						{pillarMeta[p].label}
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<!-- Featured spotlight -->
+	{featured.length > 0 && (
+		<section class="section">
+			<div class="container">
+				<div class="section-head">
+					<h2>
+						<span class="n">01.</span> Featured
+					</h2>
+				</div>
+				<div class="grid">
+					{featured.map((p) => (
+						<ProjectCard {...p.data} slug={p.id} />
+					))}
+				</div>
+			</div>
+		</section>
+	)}
+
+	<!-- Per-pillar sections -->
+	{pillars.map((p, i) => (
+		<section class="section" style={`--pillar: var(--pillar-${p})`}>
+			<div class="container">
+				<div class="section-head">
+					<h2>
+						<span class="n">{String(i + 2).padStart(2, '0')}.</span>
+						{pillarMeta[p].label}
+					</h2>
+					<a class="more" href={`/projects?pillar=${p}`}>see all →</a>
+				</div>
+				<p style="color: var(--text-dim); margin-bottom:1.8rem; max-width:56ch;">
+					{pillarMeta[p].blurb}
+				</p>
+				<div class="grid">
+					{byPillar(p)
+						.slice(0, 3)
+						.map((proj) => (
+							<ProjectCard {...proj.data} slug={proj.id} />
+						))}
+				</div>
+			</div>
+		</section>
+	))}
+
+	<!-- About -->
+	<section class="section" style="border-top: 1px solid var(--border-soft);">
+		<div class="container" style="max-width:72ch; padding: 1rem 0 2rem;">
+			<h2><span class="n">{String(pillars.length + 2).padStart(2, '0')}.</span> Philosophy</h2>
+			<p style="color: var(--text-dim);">
+				Every project here is deployed on real infrastructure — not
+				a demo repo, not a gist. The homelab runs on
+				<span class="mono" style="color: var(--accent)">clu5t3r</span>,
+				with a Traefik reverse proxy exposing each service behind
+				<span class="mono" style="color: var(--accent-2)">4rch3.io</span>.
+				This site itself is built in Astro, static, fast, and
+				deployed via the same pipeline.
+			</p>
+		</div>
+	</section>
+</Base>

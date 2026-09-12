@@ -1,0 +1,60 @@
+{{$title := "Change quote"}}
+{{if .IsNew}}{{$title = "Add quote"}}{{end}}
+{{template "base_head" (dict "Title" (printf "%s | Portfolio CMS" $title) "BodyClass" "change-form")}}
+<div class="breadcrumbs">
+  <a href="/admin/">Home</a> › <a href="/admin/quotes/">Quotes</a> › {{$title}}
+</div>
+<div id="content" class="colMS">
+  <h1>{{$title}}</h1>
+  {{if .Error}}<p class="errornote">{{.Error}}</p>{{end}}
+  <div id="content-main">
+    <form method="post" action="/admin/quotes/{{if .IsNew}}new/{{else}}{{.Quote.ID}}/save/{{end}}">
+      <fieldset class="module aligned">
+        <div class="form-row">
+          <div>
+            <label for="id_text">Quote text:</label>
+            <textarea id="id_text" name="text" rows="4" class="vLargeTextField" required>{{.Quote.Text}}</textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_author">Author:</label>
+            <input type="text" id="id_author" name="author" value="{{.Quote.Author}}" class="vTextField" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_category">Category:</label>
+            <input type="text" id="id_category" name="category" value="{{.Quote.Category}}" class="vTextField" placeholder="General">
+            <div class="help">Optional — falls back to "General" when empty.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="id_tags">Tags (comma separated):</label>
+            <input type="text" id="id_tags" name="tags" value="{{.Quote.Tags}}" class="vTextField">
+          </div>
+        </div>
+        {{if not .IsNew}}
+        <div class="form-row">
+          <div>
+            <label>Stats (read-only):</label>
+            <div class="help">Views {{.Quote.Views}} · Upvotes {{.Quote.Upvotes}} · Downvotes {{.Quote.Downvotes}}</div>
+            <div class="help">Added {{.Quote.CreatedAt}} · Updated {{.Quote.UpdatedAt}}</div>
+          </div>
+        </div>
+        {{end}}
+      </fieldset>
+      <div class="submit-row">
+        <input type="submit" value="Save" class="default" name="_save">
+        {{if not .IsNew}}
+        <a class="changelink" href="/admin/quotes/{{.Quote.ID}}/favorite/">{{if .Quote.IsFavorite}}Unfavorite{{else}}Favorite{{end}}</a>
+        <a class="changelink" href="/admin/quotes/{{.Quote.ID}}/archive/">{{if .Quote.IsArchived}}Unarchive{{else}}Archive{{end}}</a>
+        <a class="deletelink" href="/admin/quotes/{{.Quote.ID}}/delete/">Delete</a>
+        {{end}}
+        <a class="closelink" href="/admin/quotes/">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{{template "base_foot" .}}

@@ -1,0 +1,20 @@
+{{template "base_head" (dict "Title" "Are you sure? | Portfolio CMS" "BodyClass" "delete-confirmation")}}
+<div class="breadcrumbs"><a href="/admin/">Home</a> › <a href="/admin/quotes/">Quotes</a> › Confirm delete</div>
+<div id="content" class="colMS">
+  <h1>Delete quote</h1>
+  <div id="content-main">
+    <div class="module delete-confirmation">
+      <h2>Are you sure?</h2>
+      <p>Are you sure you want to delete this quote by <strong>{{.Author}}</strong>?</p>
+      <blockquote>{{.Text}}</blockquote>
+      <p>This permanently removes the quote from the ai-quotes database.</p>
+      <form method="post" action="/admin/quotes/{{.ID}}/del/">
+        <div class="submit-row">
+          <input type="submit" value="Yes, I'm sure" class="default">
+          <a class="closelink" href="/admin/quotes/">No, take me back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{template "base_foot" .}}

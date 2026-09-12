@@ -1,0 +1,14 @@
+node_modules
+dist
+.astro
+README.md
+dev_notes.md
+Dockerfile
+docker-compose.yml
+.admin.env
+.env
+.env.*
+admin
+*.log
+.git
+.vscode

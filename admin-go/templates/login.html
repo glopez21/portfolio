@@ -1,0 +1,16 @@
+{{$pg := .Page}}
+{{template "base_head" (dict "Title" "Log in | Portfolio CMS" "BodyClass" "login")}}
+<div id="content" class="login-content">
+  <div class="login-module">
+    <h1>Log in</h1>
+    {{if .Error}}
+    <p class="errornote">Please enter the correct username and password.</p>
+    {{end}}
+    <form method="post" action="/admin/login/">
+      <div class="form-row"><label for="u">Username:</label><input type="text" id="u" name="username" value="" autofocus></div>
+      <div class="form-row"><label for="p">Password:</label><input type="password" id="p" name="password"></div>
+      <div class="submit-row"><input type="submit" value="Log in"></div>
+    </form>
+  </div>
+</div>
+{{template "base_foot" .}}
