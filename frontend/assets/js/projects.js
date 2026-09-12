@@ -55,7 +55,9 @@
           .append($('<h3>', { text: p.title }))
           .append($('<p>', { text: pillarLabel(p.pillar) }))
           .append($('<div>', { 'class': 'portfolio-links' })
-            .append($('<a>', { 'href': '#', 'class': 'portfolio-repo', 'title': 'Repository' })
+            .append(p.live ? $('<a>', { 'href': p.live, 'target': '_blank', 'rel': 'noopener', 'class': 'portfolio-live', 'title': 'Live site', 'aria-label': 'Live site' })
+              .append($('<i>', { 'class': 'bx bx-link-external' })) : null)
+            .append($('<a>', { 'href': p.repo || '#', 'class': 'portfolio-repo', 'title': 'Repository', 'aria-label': 'Repository' })
               .html(GH_SVG))
             .append($('<a>', { 'href': 'portfolio-details.html?slug=' + p.slug, 'data-gall': 'portfolioDetailsGallery', 'data-vbtype': 'iframe', 'class': 'venobox', 'title': 'Portfolio Details' })
               .append($('<i>', { 'class': 'bx bx-link' })))));

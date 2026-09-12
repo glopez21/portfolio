@@ -7,6 +7,7 @@ status: planned
 order: 5
 featured: false
 path: hermes
+repo: https://git.4rch3.io/61-72-6b-68-e9/hermes
 stack:
 - Rust
 - ratatui

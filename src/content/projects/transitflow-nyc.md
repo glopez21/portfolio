@@ -6,6 +6,7 @@ status: dev
 order: 2
 featured: true
 path: transitflow-nyc
+repo: https://git.4rch3.io/61-72-6b-68-e9/transitflow-nyc
 stack:
 - Python
 - FastAPI

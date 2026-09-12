@@ -7,6 +7,7 @@ status: dev
 order: 8
 featured: false
 path: SLEEPER
+repo: https://git.4rch3.io/61-72-6b-68-e9/SLEEPER
 stack:
 - Python
 - EDR Testing

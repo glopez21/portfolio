@@ -7,6 +7,7 @@ status: dev
 order: 5
 featured: false
 path: s3arc
+repo: https://git.4rch3.io/61-72-6b-68-e9/s3arc
 stack:
 - Python
 - BM25

@@ -7,6 +7,7 @@ status: planned
 order: 4
 featured: false
 path: n3xusDB
+repo: https://git.4rch3.io/61-72-6b-68-e9/n3xusDB
 stack:
 - Rust
 - WAL

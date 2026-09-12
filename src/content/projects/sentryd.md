@@ -7,6 +7,7 @@ status: dev
 order: 4
 featured: false
 path: sentryd
+repo: https://git.4rch3.io/61-72-6b-68-e9/logsentry
 stack:
 - Rust
 - SQLite

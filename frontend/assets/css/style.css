@@ -1404,6 +1404,10 @@ body.in-modal .portfolio-details-hero img.is-shot {
   margin-top: 10px;
 }
 
+.portfolio-details .portfolio-info ul a {
+  text-decoration: underline;
+}
+
 .portfolio-details .portfolio-info p {
   font-size: 15px;
   padding: 15px 0 0 0;

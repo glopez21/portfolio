@@ -6,6 +6,7 @@ status: research
 order: 2
 featured: false
 path: neural-sim
+repo: https://git.4rch3.io/61-72-6b-68-e9/neural-sim
 stack:
 - Python
 - NumPy

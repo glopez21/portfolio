@@ -22,7 +22,7 @@ BASE = os.environ.get("A11Y_BASE", "http://localhost:8095")
 DEFAULT_PATHS = [
     "/",
     "/research.html",
-    "/portfolio-details.html?slug=tr4c3",
+    "/portfolio-details.html?slug=threatpulse",
     "/portfolio-details.html?slug=sleeper",
 ]
 

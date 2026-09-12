@@ -7,6 +7,7 @@ status: dev
 order: 2
 featured: false
 path: m0rpheus-rs
+repo: https://git.4rch3.io/61-72-6b-68-e9/m0rpheus-rs
 stack:
 - Rust
 - ratatui

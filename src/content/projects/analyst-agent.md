@@ -7,6 +7,7 @@ status: planned
 order: 1
 featured: true
 path: Analyst-Agent
+repo: https://git.4rch3.io/61-72-6b-68-e9/analyst-agent
 stack:
 - Python
 - ollama

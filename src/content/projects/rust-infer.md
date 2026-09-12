@@ -7,6 +7,7 @@ status: research
 order: 3
 featured: false
 path: rust-infer
+repo: https://git.4rch3.io/61-72-6b-68-e9/rust-infer
 stack:
 - Rust
 - axum

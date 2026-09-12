@@ -7,6 +7,7 @@ status: live
 order: 1
 featured: true
 path: Bl4ck1c3
+repo: https://git.4rch3.io/61-72-6b-68-e9/Bl4ck1c3
 stack:
 - Rust
 - axum

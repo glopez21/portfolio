@@ -87,10 +87,35 @@
       container's IP for every visitor). All verified live: 5×200→429,
       honeypot dropped, real IPs recorded.
 - [ ] **M7 — Deploy (external)**: expose via the proper clu5t3r + Traefik
-      pipeline on `portfolio.4rch3.io` (public DNS + router 80/443 forwarding).
+      pipeline — `4rch3.io` apex + `www` → portfolio, `homelab.4rch3.io` →
+      portal (see routing plan below); public DNS + router 80/443 forwarding.
       Deferred by user — Traefik already running in the homelab; nothing is
       publicly reachable today (even 4rch3.io resolves only on the LAN).
       NOT using router port-forwards on m41n / Tailscale Funnel as interim.
+- [x] **M7a — Project repos on Forgejo + repo/live wiring**: all 27
+      portfolio projects backed up on Forgejo, **all private**. 20 new
+      repos (16 fresh `git init` with tailored .gitignore — Rust `target/`,
+      Python `.venv/__pycache__/*.db` — plus hermes/rust-infer which had
+      zero commits, plus n3xusDB/transitflow-nyc which keep GitHub `origin`
+      and gained a `forgejo` remote); augur/shadowsim/threat-pulse/homelab
+      snapshot-committed + pushed; logsentry had diverged 3v3 — merged
+      forgejo/main (web-UI serve mode + health server) into local main,
+      docker-compose.yml conflict resolved keeping local port-removal +
+      remote web-ui labels (8081 + /health), pushed 05ac94e — the deployed
+      copy on clu5t3r is now behind Forgejo main. Pre-existing repos
+      flipped private (incl. 4rch3.io, alertflow, m0rpheus, misp,
+      portfolio). Frontmatter: `repo:` on all 27 (names follow source
+      dirs: threat-pulse, n3xusDB, homelab; sentryd → logsentry repo since
+      its code lives in `logsentry/sentryd/`; analyst-agent → repo pending,
+      source lives on clu5t3r) and `live: https://homelab.4rch3.io` on
+      lab.md — the first live link; it 404s at Traefik until the routing
+      move lands. Wiring: `.portfolio-repo` href from `p.repo`, new
+      `.portfolio-live` card icon (bx-link-external, rendered only when
+      `live` is set); details pages already render Repository/Live rows
+      from frontmatter. a11y gate caught the new repo row
+      (`link-in-text-block`, serious) → details-list links underlined,
+      audit's stale `tr4c3` slug replaced with `threatpulse`; 0 violations
+      across 4 pages. Cache-busters: projects.js v3, style.css v13.
 
 ## Routing plan (agreed with user — execute at M7)
 

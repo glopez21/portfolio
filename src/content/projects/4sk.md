@@ -7,6 +7,7 @@ status: dev
 order: 1
 featured: false
 path: 4sk
+repo: https://git.4rch3.io/61-72-6b-68-e9/4sk
 stack:
 - Python
 - FastAPI

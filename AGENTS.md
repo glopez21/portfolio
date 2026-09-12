@@ -51,6 +51,21 @@ the public GitHub mirror `github.com/glopez21/portfolio` — so `make push`
 (git push origin main) is all that's needed; never push to GitHub directly.
 `.env` is git-ignored; tokens live in the host credential store.
 
+## Project repositories
+
+Every portfolio-listed project is backed up on Forgejo, **all private** —
+`repo:` frontmatter on each `src/content/projects/*.md` points at
+`https://git.4rch3.io/61-72-6b-68-e9/<name>`. Repo names follow the source
+directory, not the slug (e.g. slug `threatpulse` → repo `threat-pulse`,
+`n3xusdb` → `n3xusDB`, `lab` → `homelab`). Exceptions: `sentryd` points at
+the `logsentry` repo (its code lives in `logsentry/sentryd/`), and
+`analyst-agent` points at a repo still to be created from the clu5t3r copy.
+`n3xusDB` and `transitflow-nyc` also keep their GitHub `origin`; their
+Forgejo remote is named `forgejo` (same convention as all project repos).
+README polishing and going public is deferred; the GitHub side is mirrored
+manually by the user. Note: `logsentry` on clu5t3r may lag its Forgejo
+main (m41n holds a merge of the web-UI + health-server lines).
+
 ## Frontend layout
 
 - `frontend/index.html` — one-page site (hero, about, skills, portfolio,
@@ -85,10 +100,12 @@ the public GitHub mirror `github.com/glopez21/portfolio` — so `make push`
   Every other project renders a generated SVG **project logo**
   (`assets/img/project-logos/<slug>.svg`) instead of a photo. Non-lab
   cards are shown at 82% of their column width (`.portfolio-item:not(.lab-item)
-  .portfolio-wrap`). The `portfolio-links` hover icons are: a GitHub/git mark (`.portfolio-repo`,
-  `href="#"` placeholder for now — will point at the project `repo`
-  when it goes live) and the unchanged details-link venobox
-  (`portfolio-details.html?slug=…`).
+  .portfolio-wrap`). The `portfolio-links` hover icons are: a GitHub/git mark
+  (`.portfolio-repo`, wired to the project's `repo` frontmatter — Forgejo,
+  private repos, see "Project repositories"), an optional live-site mark
+  (`.portfolio-live`, `bx-link-external`, rendered only when `live` is set —
+  currently just The Lab → `https://homelab.4rch3.io`), and the unchanged
+  details-link venobox (`portfolio-details.html?slug=…`).
 - `assets/js/project-details.js` — fetches a single project by slug,
   populates the detail page. Unknown slug shows a "not found" fallback.
   The hero image (`#portfolio-hero`, styled at 24%/230px as a logo tile)
@@ -250,9 +267,6 @@ resolve publicly yet).
 
 ## Deferred (not bugs)
 
-- **Repo links not live yet.** The portfolio hover GitHub/git icon is a
-  placeholder (`href="#"`); when the user approves going live, set its href
-  from each project's `repo` frontmatter (`<a class="portfolio-repo">`).
 - Resume: the home `#resume` section and the empty `resume.html` stub were
   **removed** (nav "Resume" link dropped on all pages). A polished,
   restyled CV/skills section may be added back later.

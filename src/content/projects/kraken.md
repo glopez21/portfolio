@@ -7,6 +7,7 @@ status: dev
 order: 9
 featured: false
 path: KRAKEN
+repo: https://git.4rch3.io/61-72-6b-68-e9/KRAKEN
 stack:
 - Python
 - Transformer

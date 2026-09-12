@@ -7,6 +7,7 @@ status: live
 order: 3
 featured: false
 path: shadowsim
+repo: https://git.4rch3.io/61-72-6b-68-e9/shadowsim
 stack:
 - Python
 - Modular

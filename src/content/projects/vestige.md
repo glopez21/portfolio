@@ -7,6 +7,7 @@ status: dev
 order: 6
 featured: false
 path: Vestige
+repo: https://git.4rch3.io/61-72-6b-68-e9/Vestige
 stack:
 - Python
 - YARA

@@ -6,6 +6,8 @@ status: live
 order: 27
 featured: false
 path: TheLab
+repo: https://git.4rch3.io/61-72-6b-68-e9/homelab
+live: https://homelab.4rch3.io
 stack:
 - Docker Compose
 - nginx
