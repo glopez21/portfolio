@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/smtp"
 	"os"
 	"path/filepath"
 	"sort"
@@ -34,6 +36,15 @@ type config struct {
 	SessionTTL  time.Duration
 	QuotesDB    string
 	ContactFile string
+
+	// Contact-form email notification (disabled unless SMTPHost and
+	// ContactEmail are set). JSONL storage always stays on.
+	SMTPHost     string
+	SMTPPort     string
+	SMTPUser     string
+	SMTPPass     string
+	SMTPFrom     string
+	ContactEmail string
 }
 
 func loadConfig() config {
@@ -46,6 +57,13 @@ func loadConfig() config {
 		SessionTTL:  12 * time.Hour,
 		QuotesDB:    env("AI_QUOTES_DB", ""),
 		ContactFile: env("CONTACT_FILE", "/data/contact_messages.jsonl"),
+
+		SMTPHost:     env("SMTP_HOST", ""),
+		SMTPPort:     env("SMTP_PORT", "587"),
+		SMTPUser:     env("SMTP_USER", ""),
+		SMTPPass:     env("SMTP_PASSWORD", ""),
+		SMTPFrom:     env("SMTP_FROM", ""),
+		ContactEmail: env("CONTACT_EMAIL", ""),
 	}
 }
 
@@ -688,8 +706,108 @@ func (a *App) handleContact(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "could not store message", http.StatusInternalServerError)
 		return
 	}
+	a.notifyContact(msg)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Write([]byte("OK"))
+}
+
+// notifyContact emails the site owner about a new contact message. It is
+// fire-and-forget: the visitor already got their OK (the JSONL copy is the
+// durable record), and any SMTP failure is only logged.
+func (a *App) notifyContact(msg contactMessage) {
+	c := a.cfg
+	if c.SMTPHost == "" || c.ContactEmail == "" {
+		return
+	}
+	go func() {
+		if err := a.sendContactMail(msg); err != nil {
+			log.Printf("contact: notify email failed: %v", err)
+		}
+	}()
+}
+
+// sanitizeHeader collapses CR/LF into spaces — name/subject come from the
+// visitor and must never smuggle extra email headers (header injection).
+func sanitizeHeader(s string) string {
+	return strings.NewReplacer("\r", " ", "\n", " ").Replace(strings.TrimSpace(s))
+}
+
+func (a *App) sendContactMail(msg contactMessage) error {
+	c := a.cfg
+	from := c.SMTPFrom
+	if from == "" {
+		from = c.SMTPUser
+	}
+	subject := "[4rch3.io contact] " + sanitizeHeader(msg.Subject)
+	if subject == "[4rch3.io contact] " {
+		subject = "[4rch3.io contact] (no subject)"
+	}
+	body := fmt.Sprintf(
+		"New contact-form message on 4rch3.io\n\n"+
+			"Name:    %s\n"+
+			"Email:   %s\n"+
+			"Subject: %s\n"+
+			"Time:    %s\n"+
+			"IP:      %s\n\n"+
+			"--- message ---\n%s\n--- end ---\n"+
+			"Reply directly to this email to answer the visitor (Reply-To is set).\n"+
+			"All messages are also archived at /admin/contact/.\n",
+		sanitizeHeader(msg.Name), sanitizeHeader(msg.Email), sanitizeHeader(msg.Subject),
+		msg.Time, msg.IP, msg.Message)
+	headers := map[string]string{
+		"From":         from,
+		"To":           c.ContactEmail,
+		"Subject":      subject,
+		"Reply-To":     sanitizeHeader(msg.Email),
+		"Date":         time.Now().Format(time.RFC1123Z),
+		"MIME-Version": "1.0",
+		"Content-Type": `text/plain; charset="utf-8"`,
+	}
+	var b bytes.Buffer
+	for _, k := range []string{"From", "To", "Subject", "Reply-To", "Date", "MIME-Version", "Content-Type"} {
+		fmt.Fprintf(&b, "%s: %s\r\n", k, headers[k])
+	}
+	b.WriteString("\r\n" + body)
+
+	addr := net.JoinHostPort(c.SMTPHost, c.SMTPPort)
+	conn, err := net.DialTimeout("tcp", addr, 10*time.Second)
+	if err != nil {
+		return fmt.Errorf("dial %s: %w", addr, err)
+	}
+	defer conn.Close()
+	_ = conn.SetDeadline(time.Now().Add(20 * time.Second))
+	cl, err := smtp.NewClient(conn, c.SMTPHost)
+	if err != nil {
+		return fmt.Errorf("smtp greeting: %w", err)
+	}
+	defer cl.Close()
+	if ok, _ := cl.Extension("STARTTLS"); ok {
+		if err = cl.StartTLS(&tls.Config{ServerName: c.SMTPHost}); err != nil {
+			return fmt.Errorf("starttls: %w", err)
+		}
+	}
+	if c.SMTPUser != "" {
+		if err = cl.Auth(smtp.PlainAuth("", c.SMTPUser, c.SMTPPass, c.SMTPHost)); err != nil {
+			return fmt.Errorf("auth: %w", err)
+		}
+	}
+	if err = cl.Mail(from); err != nil {
+		return fmt.Errorf("mail from: %w", err)
+	}
+	if err = cl.Rcpt(c.ContactEmail); err != nil {
+		return fmt.Errorf("rcpt to: %w", err)
+	}
+	w, err := cl.Data()
+	if err != nil {
+		return fmt.Errorf("data: %w", err)
+	}
+	if _, err = w.Write(b.Bytes()); err != nil {
+		return fmt.Errorf("write body: %w", err)
+	}
+	if err = w.Close(); err != nil {
+		return fmt.Errorf("close body: %w", err)
+	}
+	return cl.Quit()
 }
 
 // handleContactAdmin lists stored contact submissions, newest first.
@@ -796,7 +914,14 @@ func main() {
 	mux.HandleFunc("/api/contact/", a.handleContact)
 	mux.HandleFunc("/admin/contact/", a.requireAuth(a.handleContactAdmin))
 
-	log.Printf("4rch3 portfolio-admin listening on %s (projects: %s, quotes: %s)", cfg.Addr, cfg.ProjectsDir, cfg.QuotesDB)
+	notify := "off"
+	if cfg.SMTPHost != "" && cfg.ContactEmail != "" {
+		notify = "on (" + cfg.ContactEmail + ")"
+		if cfg.SMTPUser != "" && cfg.SMTPPass == "" {
+			notify += " — WARNING: SMTP_PASSWORD is empty; set it in .env or mails will fail auth"
+		}
+	}
+	log.Printf("4rch3 portfolio-admin listening on %s (projects: %s, quotes: %s, contact email notify: %s)", cfg.Addr, cfg.ProjectsDir, cfg.QuotesDB, notify)
 	log.Fatal(http.ListenAndServe(cfg.Addr, mux))
 }
 

@@ -46,9 +46,22 @@
       and failures keep the static tagline. Rotation is refresh-only (as
       agreed). Reviewed with the user before building; jsdom-tested (8 new
       checks: text, author, underline range, fail + empty-body fallbacks).
-- [ ] **M6 — Visual polish**: project screenshots/diagrams, OG images,
-      open-graph + JSON-LD metadata, accessibility pass. Still needed before
-      the 80% deploy threshold.
+- [x] **M5f — Contact email notify + SEO metadata (2026-09-12)**:
+      (a) contact-form SMTP notify in the Go admin (net/smtp, STARTTLS,
+      fire-and-forget goroutine, header-injection-safe, Reply-To =
+      visitor; JSONL inbox stays the durable record). Env-gated via
+      SMTP_HOST/CONTACT_EMAIL in `.env`; Gmail app password pending from
+      user. Verified with an in-network python SMTP sink (full
+      transcript: From/To/Subject/Reply-To/body correct, visitor `OK`
+      immediate). (b) OG + Twitter `summary_large_image` + JSON-LD
+      (Person + WebSite) on all three pages; fixed the template's broken
+      `descriptison` meta tag; generated 1200x630 `og-image.png` via
+      `scripts/gen_og_image.py` (Pillow CRT-brand render). Also: `.env`
+      created with real admin creds (default admin123 retired), repo
+      git-initialized, README rewritten to match the real stack.
+- [ ] **M6 — Visual polish**: ~~OG images, open-graph + JSON-LD metadata~~
+      (done in M5f). Remaining: project screenshots/diagrams,
+      accessibility pass. Still needed before the 80% deploy threshold.
 - [ ] **M7 — Deploy (external)**: expose via the proper clu5t3r + Traefik
       pipeline on `portfolio.4rch3.io` (public DNS + router 80/443 forwarding).
       Deferred by user — Traefik already running in the homelab; nothing is

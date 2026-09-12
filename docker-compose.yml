@@ -31,6 +31,13 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
       AI_QUOTES_DB: /quotes-instance/ai_quotes.db
+      # Contact-form email notify (empty SMTP_HOST = disabled; JSONL inbox always on)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-}
     volumes:
       - admin_data:/data
       - ./src/content/projects:/content/projects:rw   # shared content source of truth
