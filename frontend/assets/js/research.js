@@ -85,10 +85,10 @@
       $row.append(
         '<div class="col-lg-6 mb-4 research-col">' +
           '<div class="card research-card" data-topic="' + t.id + '">' +
-            '<a class="venobox read-note" data-vbtype="inline" data-bgcolor="#0c0e10" href="#research-note-' + t.id + '"></a>' +
+            '<a class="venobox read-note" aria-label="Open research note: ' + t.title + '" data-vbtype="inline" data-bgcolor="#0c0e10" href="#research-note-' + t.id + '"></a>' +
             '<div class="card-body">' +
               '<i class="' + t.icon + '"></i>' +
-              '<h3 class="card-title mt-3">' + t.title + '</h3>' +
+              '<h2 class="card-title mt-3">' + t.title + '</h2>' +
               '<p class="card-text">' + t.text + '</p>' +
               '<p class="card-meta">' + t.meta + '</p>' +
               '<div class="card-foot">' +

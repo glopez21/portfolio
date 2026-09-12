@@ -134,6 +134,14 @@ talk through `/api/projects/` — the Markdown contract in
   serialize() output and requires the response body to be exactly `OK`.
   The Go endpoint handles that contract (returns `OK`, or a clear error
   message for empty/invalid input; 405 for non-POST).
+- **Abuse controls**: per-IP fixed-window rate limit (`CONTACT_RATE_LIMIT`,
+  default 5/hour, `CONTACT_RATE_WINDOW`) → 429 + `Retry-After`; a hidden
+  honeypot field (`name="website"`, positioned off-screen) — bots that
+  fill it get a fake `OK` and are dropped silently (logged). nginx now
+  sets `X-Real-IP`/`X-Forwarded-For` on `/api/` too, and the admin's
+  `clientIP` prefers `X-Real-IP` (nginx's own view — not client-spoofable,
+  unlike the first XFF entry). Without that, every visitor appeared as
+  the web container's IP.
 
 ## Content
 
@@ -181,6 +189,34 @@ The screenshot tooling lives in the project `.venv` (`python3 -m venv .venv
 chromium`); it's git-ignored. Detail pages pick these up automatically
 (hero prefers screenshot; About appends diagram) — run `make sync` after
 regenerating.
+
+## Accessibility
+
+`make a11y` (`scripts/a11y_audit.py`, vendored axe-core 4.10.2) audits
+the live pages and **exits non-zero on any violation** — keep it at zero.
+Current state: 0 violations across home, research, and both detail-page
+modes. Hard-won gotchas baked into the code:
+
+- `body` must keep a **solid** `background: #040404` — the template's
+  `background: transparent` shorthand reset the background-color, and
+  auditors/browsers then resolve text against **white** (bg.jpg comes
+  from `body::before`, which axe cannot attribute). This single line
+  caused most of the original contrast failures.
+- CRT glow uses `filter: drop-shadow(...)`, **not** `text-shadow` —
+  a dim green text-shadow is treated as worst-case foreground color by
+  contrast audits. `text-shadow` also inherits to child spans.
+- `brand-flicker` keyframes must not dip opacity below ~0.88 (4.5:1 at
+  mid-flicker).
+- Heading order: home = h1 brand → h2 section titles → h3 grid cards;
+  research = h1 section → h2 card titles → h3 note-modal titles; detail
+  pages = h1 project title → h2 (Project information / Highlights /
+  About / Architecture). Changing a generated heading level means
+  updating both the JS and the CSS selectors (`.portfolio-info h3` etc.).
+- `#portfolio-details` (fixed, `overflow-y: auto`) carries
+  `tabindex="0"` + `role="region"` for keyboard scroll access.
+- `prefers-reduced-motion` disables all animations/transitions.
+- Icon-only links (hero socials, venobox `.read-note` triggers) carry
+  `aria-label`; contact inputs carry `aria-label`.
 
 ## Verification
 

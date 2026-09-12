@@ -40,7 +40,7 @@
       if (isLab) {
         $wrap
           .append($('<i>', { 'class': 'bx bx-server card-panel-icon' }))
-          .append($('<h4>', { 'class': 'card-panel-title', text: p.title }))
+          .append($('<h3>', { 'class': 'card-panel-title', text: p.title }))
           .append($('<div>', { 'class': 'card-panel-text', text: p.tagline }));
       } else {
         $wrap.append($('<img>', { 'src': logo, 'class': 'img-fluid project-logo', 'alt': p.title }));
@@ -52,7 +52,7 @@
         .append($wrap);
       $wrap
         .append($('<div>', { 'class': 'portfolio-info' })
-          .append($('<h4>', { text: p.title }))
+          .append($('<h3>', { text: p.title }))
           .append($('<p>', { text: pillarLabel(p.pillar) }))
           .append($('<div>', { 'class': 'portfolio-links' })
             .append($('<a>', { 'href': '#', 'class': 'portfolio-repo', 'title': 'Repository' })

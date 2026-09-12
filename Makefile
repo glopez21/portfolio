@@ -1,4 +1,4 @@
-.PHONY: up down build logs ps sync clean screenshots diagrams og-image push
+.PHONY: up down build logs ps sync clean screenshots diagrams og-image push a11y
 
 # ---------------------------------------------------------------------- #
 # 4rch3.io portfolio — containerized site + Go admin CMS
@@ -54,6 +54,10 @@ screenshots: dashboards terminal diagrams
 ## Regenerate the social/OG image
 og-image:
 	python3 scripts/gen_og_image.py
+
+## Accessibility audit (axe-core) against the live site — exit 1 on violations
+a11y:
+	.venv/bin/python scripts/a11y_audit.py
 
 ## Push to Forgejo origin (GitHub mirror follows automatically)
 push:

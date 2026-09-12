@@ -62,7 +62,7 @@
     }
 
     var $info = $('#portfolio-info');
-    $info.append($('<h3>', { text: 'Project information' }));
+    $info.append($('<h2>', { text: 'Project information' }));
 
     var $ul = $('<ul>');
     $ul.append($('<li>').append($('<strong>', { text: 'Category' })).append(': ' + escapeHtml(p.pillar)));
@@ -85,7 +85,7 @@
     $info.append($ul);
 
     var $highlights = $('#portfolio-highlights');
-    $highlights.append($('<h3>', { text: 'Highlights' }));
+    $highlights.append($('<h2>', { text: 'Highlights' }));
     var $hl = $('<ul>');
     $.each(p.highlights || [], function(i, h) {
       $hl.append($('<li>', { text: h }));
@@ -93,7 +93,7 @@
     $highlights.append($hl);
 
     var $about = $('#portfolio-about');
-    $about.append($('<h3>', { text: 'About' })).append(renderParagraphs(p.body));
+    $about.append($('<h2>', { text: 'About' })).append(renderParagraphs(p.body));
 
     // Architecture diagram (rendered from src/content/diagrams/<slug>.mmd)
     // — only shown when the PNG exists; silently skipped otherwise.
@@ -103,7 +103,7 @@
       'alt': p.title + ' architecture diagram'
     });
     $diagram.on('error', function() { $(this).remove(); });
-    $about.append($('<h3>', { text: 'Architecture', 'class': 'diagram-title d-none' }))
+    $about.append($('<h2>', { text: 'Architecture', 'class': 'diagram-title d-none' }))
           .append($diagram);
     $diagram.on('load', function() {
       $(this).siblings('.diagram-title').removeClass('d-none');

@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -45,9 +46,18 @@ type config struct {
 	SMTPPass     string
 	SMTPFrom     string
 	ContactEmail string
+
+	// Public contact endpoint abuse limits (per client IP, fixed window).
+	ContactRateLimit   int
+	ContactRateWindow  time.Duration
 }
 
 func loadConfig() config {
+	rateLimit := envInt("CONTACT_RATE_LIMIT", 5)
+	window, err := time.ParseDuration(env("CONTACT_RATE_WINDOW", "1h"))
+	if err != nil || window <= 0 {
+		window = time.Hour
+	}
 	return config{
 		Addr:        env("ADMIN_ADDR", "0.0.0.0:8000"),
 		ProjectsDir: env("PROJECTS_DIR", "/content/projects"),
@@ -64,7 +74,19 @@ func loadConfig() config {
 		SMTPPass:     env("SMTP_PASSWORD", ""),
 		SMTPFrom:     env("SMTP_FROM", ""),
 		ContactEmail: env("CONTACT_EMAIL", ""),
+
+		ContactRateLimit:  rateLimit,
+		ContactRateWindow: window,
 	}
+}
+
+func envInt(key string, def int) int {
+	if v := os.Getenv(key); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			return n
+		}
+	}
+	return def
 }
 
 func env(key, def string) string {
@@ -385,6 +407,49 @@ type App struct {
 	sessions *SessionStore
 	tmpl     *template.Template
 	mu       sync.Mutex
+
+	// Per-IP fixed-window limiter for the public contact endpoint.
+	limits   map[string]*ipWindow
+	limitsMu sync.Mutex
+}
+
+// ipWindow counts contact-form submissions from one address inside a
+// fixed window. Zero-allocation cleanup: expired entries are dropped
+// lazily on each check.
+type ipWindow struct {
+	count int
+	reset time.Time
+}
+
+// allowContact reports whether ip may submit another contact message,
+// enforcing a fixed window of at most cfg.ContactRateLimit submissions
+// (used for real logging + 429s; bots that fill the honeypot are dropped
+// silently before this is even consulted).
+func (a *App) allowContact(ip string) (ok bool, retryAfter time.Duration) {
+	a.limitsMu.Lock()
+	defer a.limitsMu.Unlock()
+	now := time.Now()
+	if a.limits == nil {
+		a.limits = map[string]*ipWindow{}
+	}
+	// Lazy GC so the map cannot grow without bound under address churn.
+	if len(a.limits) > 4096 {
+		for k, w := range a.limits {
+			if now.After(w.reset) {
+				delete(a.limits, k)
+			}
+		}
+	}
+	w := a.limits[ip]
+	if w == nil || now.After(w.reset) {
+		w = &ipWindow{count: 0, reset: now.Add(a.cfg.ContactRateWindow)}
+		a.limits[ip] = w
+	}
+	if w.count >= a.cfg.ContactRateLimit {
+		return false, time.Until(w.reset)
+	}
+	w.count++
+	return true, 0
 }
 
 func newApp(cfg config) (*App, error) {
@@ -677,6 +742,15 @@ func (a *App) handleContact(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+	// Honeypot: real visitors never see or fill the hidden "website"
+	// field; bots that do are dropped silently (OK body, nothing stored)
+	// so they don't learn they were caught.
+	if strings.TrimSpace(r.FormValue("website")) != "" {
+		log.Printf("contact: honeypot tripped (ip %s) — dropped", clientIP(r))
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte("OK"))
+		return
+	}
 	msg := contactMessage{
 		Name:    strings.TrimSpace(r.FormValue("name")),
 		Email:   strings.TrimSpace(r.FormValue("email")),
@@ -684,6 +758,12 @@ func (a *App) handleContact(w http.ResponseWriter, r *http.Request) {
 		Message: strings.TrimSpace(r.FormValue("message")),
 		Time:    time.Now().UTC().Format(time.RFC3339),
 		IP:      clientIP(r),
+	}
+	if ok, retry := a.allowContact(msg.IP); !ok {
+		log.Printf("contact: rate limited ip %s (retry in %s)", msg.IP, retry.Round(time.Second))
+		w.Header().Set("Retry-After", strconv.Itoa(int(retry.Seconds())+1))
+		http.Error(w, "too many messages — please try again later", http.StatusTooManyRequests)
+		return
 	}
 	if msg.Name == "" || msg.Email == "" || msg.Message == "" {
 		http.Error(w, "name, email and message are required", http.StatusBadRequest)
@@ -845,7 +925,14 @@ func appendLine(path, line string) error {
 	return err
 }
 
+// clientIP resolves the visitor's address. X-Real-IP is set by our own
+// nginx proxy ($remote_addr — not client-controllable), so it wins over
+// X-Forwarded-For, whose first entry a client can spoof by sending its
+// own header before the proxy appends to it.
 func clientIP(r *http.Request) string {
+	if rip := strings.TrimSpace(r.Header.Get("X-Real-Ip")); rip != "" {
+		return rip
+	}
 	if fwd := r.Header.Get("X-Forwarded-For"); fwd != "" {
 		if parts := strings.Split(fwd, ","); len(parts) > 0 {
 			return strings.TrimSpace(parts[0])

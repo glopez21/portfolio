@@ -69,6 +69,23 @@
       pass; authenticated augur capture (login wall is what we have — no
       creds stored); extend terminal commands + diagrams to more projects.
       Still needed before the 80% deploy threshold.
+- [x] **M6b — Accessibility + contact abuse controls (2026-09-12)**:
+      (a) axe-core audit pipeline (`make a11y`, vendored axe 4.10.2,
+      `scripts/a11y_audit.py`, exit-1 gate) — fixed all 9 baseline
+      violation types to **0** across home/research/detail pages: body
+      solid bg (the `background: transparent` reset made auditors see
+      white — root cause of most contrast flags), CRT glow via
+      filter/drop-shadow instead of text-shadow, flicker opacity floor
+      0.88, `<main>` landmark on home, named icon-only links
+      (hero socials, venobox triggers), form input aria-labels, heading
+      order fixes (cards h2/h3, detail sections h2, research h1),
+      scrollable `#portfolio-details` tabindex+region,
+      prefers-reduced-motion support. (b) Contact hardening: per-IP
+      fixed-window rate limit (5/h default, env-tunable, 429+Retry-After),
+      hidden honeypot field (silent drop + log), nginx X-Real-IP/XFF on
+      `/api/` + `clientIP` prefers X-Real-IP (was recording the web
+      container's IP for every visitor). All verified live: 5×200→429,
+      honeypot dropped, real IPs recorded.
 - [ ] **M7 — Deploy (external)**: expose via the proper clu5t3r + Traefik
       pipeline on `portfolio.4rch3.io` (public DNS + router 80/443 forwarding).
       Deferred by user — Traefik already running in the homelab; nothing is
