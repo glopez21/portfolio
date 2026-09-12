@@ -60,8 +60,15 @@
       created with real admin creds (default admin123 retired), repo
       git-initialized, README rewritten to match the real stack.
 - [ ] **M6 — Visual polish**: ~~OG images, open-graph + JSON-LD metadata~~
-      (done in M5f). Remaining: project screenshots/diagrams,
-      accessibility pass. Still needed before the 80% deploy threshold.
+      (done in M5f). ~~Project screenshots/diagrams~~ (done 2026-09-12 —
+      three real pipelines: `make dashboards` Playwright captures of the
+      live homelab services, `make terminal` real-ANSI terminal renders
+      from `scripts/terminal_captures.json`, `make diagrams` mermaid
+      renders from `src/content/diagrams/*.mmd`; detail pages prefer
+      screenshots + append diagrams automatically). Remaining: accessibility
+      pass; authenticated augur capture (login wall is what we have — no
+      creds stored); extend terminal commands + diagrams to more projects.
+      Still needed before the 80% deploy threshold.
 - [ ] **M7 — Deploy (external)**: expose via the proper clu5t3r + Traefik
       pipeline on `portfolio.4rch3.io` (public DNS + router 80/443 forwarding).
       Deferred by user — Traefik already running in the homelab; nothing is

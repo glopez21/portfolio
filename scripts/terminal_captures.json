@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "tr4c3",
+    "cmd": "tr4c3 --help",
+    "cwd": "/home/w01f"
+  },
+  {
+    "slug": "shadowsim",
+    "cmd": "sds list",
+    "cwd": "/home/w01f"
+  },
+  {
+    "slug": "r4g",
+    "cmd": "uv run r4g --help",
+    "cwd": "/home/w01f/projects/r4g"
+  },
+  {
+    "slug": "s3arc",
+    "cmd": "uv run s3arc --help",
+    "cwd": "/home/w01f/projects/s3arc"
+  },
+  {
+    "slug": "termvault",
+    "cmd": "termvault --help",
+    "cwd": "/home/w01f"
+  }
+]

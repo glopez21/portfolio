@@ -40,7 +40,16 @@ docker compose up -d   # full stack
 ```
 
 Verify locally on `:8095` (site + admin/API proxy) and `:8096` (direct
-admin). Admin defaults: `admin` / `admin123`.
+admin). Admin credentials live in `.env` (real password, not the old
+default).
+
+## Git
+
+Origin is Forgejo on the homelab: `git.4rch3.io/61-72-6b-68-e9/portfolio`
+(LAN-only). A **push mirror** on the Forgejo side auto-syncs every push to
+the public GitHub mirror `github.com/glopez21/portfolio` — so `make push`
+(git push origin main) is all that's needed; never push to GitHub directly.
+`.env` is git-ignored; tokens live in the host credential store.
 
 ## Frontend layout
 
@@ -82,10 +91,16 @@ admin). Admin defaults: `admin` / `admin123`.
   (`portfolio-details.html?slug=…`).
 - `assets/js/project-details.js` — fetches a single project by slug,
   populates the detail page. Unknown slug shows a "not found" fallback.
-  The hero image (`#portfolio-hero`, shown at 30% width of its column) is
-  set **inline in the HTML from `?slug=`** before any JS/API runs (no race,
-  no fallback trap), and the detail JS re-sets it as well. Default `src` is
-  threatpulse.svg so the page never paints a broken image.
+  The hero image (`#portfolio-hero`, styled at 24%/230px as a logo tile)
+  prefers a **real screenshot** (`assets/img/screenshots/<slug>.png`);
+  on load it gets `.is-shot` (larger presentation, `min(560px,100%)`).
+  Missing screenshot → `onerror` swaps back to the generated
+  `assets/img/project-logos/<slug>.svg` tile. The inline pre-JS setter in
+  `portfolio-details.html` implements the same contract (`data-shots` +
+  `data-base`), so there is no race and no broken-image paint. The About
+  column appends an **Architecture diagram** img
+  (`assets/img/diagrams/<slug>.png`) + heading, removed via `onerror`
+  when no diagram exists for the slug.
 - `portfolio-details.html` detects when it runs inside the venobox iframe
   (`window.self !== window.top`) → hides the `#inner-header` navbar and adds
   `body.in-modal`, which lays the content out as a centered card: title +
@@ -139,6 +154,33 @@ Quotes live in the `ai-quotes` SQLite DB (`../ai-quotes/instance/ai_quotes.db`),
 managed at `:8095/admin/quotes/`. The compose mount is a **directory** mount
 (not a file mount) — SQLite must be able to create its `-journal` sibling.
 Don't use a file bind for it.
+
+## Screenshots & diagrams (M6)
+
+Real visuals only — never stock images or fabricated dashboards.
+Three pipelines, all writing into `frontend/assets/img/`:
+
+- **Dashboards** — `make dashboards` (`scripts/capture_dashboards.py`,
+  Playwright/Chromium headless): captures the live homelab services listed
+  in `DASHBOARDS` (threatpulse, augur, eventflow) → `screenshots/<slug>.png`.
+  Prints a verdict per page (login wall / data-rich); pages behind login
+  need `DASH_CREDS='{"slug":["user","pass"]}'`. augur currently requires
+  credentials (registration-based, none stored).
+- **Terminal captures** — `make terminal` (`scripts/capture_terminal.py`):
+  executes the commands in `scripts/terminal_captures.json` (read-only
+  commands only — output must be real) with `FORCE_COLOR=1`, parses the
+  ANSI, and re-renders it as a branded terminal-window PNG →
+  `screenshots/<slug>.png`. Extend the JSON to add tools; ~80 lines max.
+- **Architecture diagrams** — `make diagrams` (`scripts/render_diagrams.py`):
+  renders `src/content/diagrams/<slug>.mmd` (mermaid, hand-written from each
+  project's real narrative) via vendored `scripts/vendor/mermaid.min.js`
+  (no network) → `diagrams/<slug>.png`, dark theme in brand colors.
+
+The screenshot tooling lives in the project `.venv` (`python3 -m venv .venv
+&& .venv/bin/pip install playwright pillow && .venv/bin/playwright install
+chromium`); it's git-ignored. Detail pages pick these up automatically
+(hero prefers screenshot; About appends diagram) — run `make sync` after
+regenerating.
 
 ## Verification
 

@@ -1,0 +1,18 @@
+flowchart TD
+    subgraph edge ["Edge gateway (per host)"]
+        X["XDP eBPF fast-path<br/>bl4ck1c3_kern.c"] --> CP["libpcap capture loop"]
+        CP --> PN["pnet packet parse"]
+        PN --> DPI["DPI engine<br/>per-protocol"]
+        DPI --> FE["19-dim flow features"]
+        FE --> ML["ML anomaly scoring"]
+        ML --> NF["nftables block/drop"]
+        AG["agent<br/>per-PID socket-inode attribution"] --> CP
+    end
+    ML -->|"scores over self-signed mesh"| C["Controller (clu5t3r)<br/>axum + sqlx + tokio"]
+    C --> D["Live dashboard<br/>top blocked IPs · drop rates · rules CRUD"]
+    style X fill:#0d1f14,stroke:#ff8a65,color:#d7e0ea
+    style CP fill:#16351f,stroke:#ff8a65,color:#d7e0ea
+    style DPI fill:#16351f,stroke:#ff8a65,color:#d7e0ea
+    style ML fill:#0d1f14,stroke:#ff8a65,color:#d7e0ea
+    style NF fill:#16351f,stroke:#ff8a65,color:#d7e0ea
+    style C fill:#2a1a12,stroke:#ff8a65,color:#d7e0ea

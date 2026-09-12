@@ -34,10 +34,28 @@
     return $frag;
   }
 
+  function heroFor(slug, title) {
+    // Same contract as the inline pre-JS setter: prefer a real screenshot,
+    // fall back to the generated logo tile when none exists.
+    var $img = $('#portfolio-hero');
+    $img.removeClass('is-shot').off('error load');
+    $img.on('error', function() {
+      $img.off('error load').removeClass('is-shot');
+      this.src = 'assets/img/project-logos/' + slug + '.svg';
+      this.alt = title + ' logo';
+    }).on('load', function() {
+      if (this.src.indexOf('/screenshots/') !== -1) {
+        $(this).addClass('is-shot');
+      }
+    });
+    $img.attr('src', 'assets/img/screenshots/' + slug + '.png')
+        .attr('alt', title + ' screenshot');
+  }
+
   function renderProject(p) {
     $('#portfolio-title').text(p.title);
     document.title = p.title + ' - Portfolio';
-    $('#portfolio-hero').attr('src', 'assets/img/project-logos/' + p.slug + '.svg').attr('alt', p.title + ' logo');
+    heroFor(p.slug, p.title);
 
     if (p.tagline) {
       $('#portfolio-tagline').text(p.tagline);
@@ -76,6 +94,20 @@
 
     var $about = $('#portfolio-about');
     $about.append($('<h3>', { text: 'About' })).append(renderParagraphs(p.body));
+
+    // Architecture diagram (rendered from src/content/diagrams/<slug>.mmd)
+    // — only shown when the PNG exists; silently skipped otherwise.
+    var $diagram = $('<img>', {
+      'class': 'portfolio-diagram',
+      'src': 'assets/img/diagrams/' + p.slug + '.png',
+      'alt': p.title + ' architecture diagram'
+    });
+    $diagram.on('error', function() { $(this).remove(); });
+    $about.append($('<h3>', { text: 'Architecture', 'class': 'diagram-title d-none' }))
+          .append($diagram);
+    $diagram.on('load', function() {
+      $(this).siblings('.diagram-title').removeClass('d-none');
+    });
   }
 
   function showError() {

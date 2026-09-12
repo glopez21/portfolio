@@ -1093,6 +1093,27 @@ section .container {
   box-shadow: 0 0 26px rgba(24, 210, 110, 0.14);
 }
 
+/* Real screenshots (dashboards / terminal captures) present larger than
+   the generated logo tiles. */
+.portfolio-details .portfolio-details-hero img.is-shot {
+  width: min(560px, 100%);
+  max-width: none;
+}
+
+body.in-modal .portfolio-details-hero img.is-shot {
+  width: min(520px, 94vw);
+}
+
+/* Architecture diagrams (mermaid renders) in the About column. */
+.portfolio-details .portfolio-diagram {
+  max-width: 100%;
+  margin-top: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(24, 210, 110, 0.3);
+  box-shadow: 0 0 22px rgba(24, 210, 110, 0.12);
+  background: #040404;
+}
+
 .portfolio-details .portfolio-title {
   text-align: center;
   margin-bottom: 8px;

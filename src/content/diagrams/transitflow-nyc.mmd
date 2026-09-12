@@ -1,0 +1,14 @@
+flowchart TD
+    F["MTA GTFS-RT feeds"] --> S["Live ingestion + dedup"]
+    S --> P[("PostgreSQL<br/>time-series schema")]
+    H["Scheduled scraper<br/>historical enrichment"] --> P
+    P --> M1["ML: arrival delay<br/>prediction"]
+    P --> M2["ML: corridor congestion<br/>clustering"]
+    M1 --> D["FastAPI + Chart.js dashboard<br/>per-line / per-station views"]
+    M2 --> D
+    style F fill:#0d1f14,stroke:#22d3ee,color:#d7e0ea
+    style S fill:#16351f,stroke:#22d3ee,color:#d7e0ea
+    style P fill:#0d1f14,stroke:#22d3ee,color:#d7e0ea
+    style M1 fill:#16351f,stroke:#22d3ee,color:#d7e0ea
+    style M2 fill:#16351f,stroke:#22d3ee,color:#d7e0ea
+    style D fill:#16351f,stroke:#22d3ee,color:#d7e0ea

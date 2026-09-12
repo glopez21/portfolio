@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # compiled admin binary
 admin-go/portfolio-admin
+
+# screenshot tooling venv
+.venv/

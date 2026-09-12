@@ -1,0 +1,18 @@
+flowchart LR
+    K["Corpus (docs)"] --> IN["ingest<br/>chunk + embed (ollama)"]
+    IN --> V["vector_store.json<br/>from-scratch store"]
+    IN --> B["BM25 inverted index<br/>hand-built"]
+    Q["query"] --> R1["BM25 rank"]
+    Q --> R2["vector rank"]
+    R1 --> F["Reciprocal rank fusion"]
+    R2 --> F
+    F --> AG["ReAct agent loop<br/>tool registry + structured output"]
+    AG --> ANS["answer + citations"]
+    AG --> TR["trace.jsonl<br/>per-query eval scores"]
+    S["Claude / Cursor"] -->|"MCP (stdio)"| AG
+    style IN fill:#16351f,stroke:#e8c15a,color:#d7e0ea
+    style V fill:#0d1f14,stroke:#e8c15a,color:#d7e0ea
+    style B fill:#0d1f14,stroke:#e8c15a,color:#d7e0ea
+    style F fill:#16351f,stroke:#e8c15a,color:#d7e0ea
+    style AG fill:#16351f,stroke:#e8c15a,color:#d7e0ea
+    style TR fill:#0d1117,stroke:#b59642,color:#7f93a8

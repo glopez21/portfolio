@@ -1,0 +1,18 @@
+flowchart TD
+    S1["sentryd agents"] --> I["Ingestion API<br/>(FastAPI)"]
+    S2["LogSentry"] --> I
+    S3["ShadowSim scenarios"] --> I
+    I --> Q["SQLite-backed<br/>async worker queue"]
+    Q --> D["Detection pipeline<br/>hot-swap DetectionRuleModel"]
+    D --> C["Correlation engine"]
+    C --> T["Triage by severity"]
+    T -->|"high-fidelity events"| TP["ThreatPulse (SOAR)"]
+    T --> U["Analyst dashboard"]
+    A2["Agent enrollment<br/>JWT + per-agent secret rotation"] -.-> I
+    M["Prometheus metrics<br/>+ Sentry tracking"] -.-> Q
+    style I fill:#16351f,stroke:#18d26e,color:#d7e0ea
+    style Q fill:#0d1f14,stroke:#18d26e,color:#d7e0ea
+    style D fill:#16351f,stroke:#18d26e,color:#d7e0ea
+    style C fill:#0d1f14,stroke:#18d26e,color:#d7e0ea
+    style T fill:#16351f,stroke:#18d26e,color:#d7e0ea
+    style TP fill:#0d1117,stroke:#2ea36b,color:#7f93a8

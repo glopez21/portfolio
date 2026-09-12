@@ -1,0 +1,16 @@
+flowchart TD
+    U["Analyst (plain English)"] --> C["Streamlit chat UI"]
+    C --> L["Agent loop<br/>plan → tool call → observe"]
+    L --> LLM["ollama (local LLM)"]
+    L --> T1["Augur triage API"]
+    L --> T2["ThreatPulse playbooks"]
+    L --> T3["TheHive cases"]
+    L --> R["RAG index<br/>threat intel + ShadowSim scenarios"]
+    L --> EF["EventFlow / Augur<br/>live event data"]
+    M["MCP server"] --> L
+    E["Claude / Cursor"] --> M
+    style C fill:#16351f,stroke:#18d26e,color:#d7e0ea
+    style L fill:#0d1f14,stroke:#18d26e,color:#d7e0ea
+    style LLM fill:#0d1f14,stroke:#22d3ee,color:#d7e0ea
+    style R fill:#16351f,stroke:#22d3ee,color:#d7e0ea
+    style M fill:#0d1117,stroke:#2ea36b,color:#7f93a8

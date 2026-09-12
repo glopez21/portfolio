@@ -94,15 +94,27 @@
 
           <div class="col-lg-12">
             <div class="portfolio-details-hero">
-              <img src="assets/img/project-logos/threatpulse.svg" data-base="assets/img/project-logos/" id="portfolio-hero" class="img-fluid" alt="Project logo">
+              <img src="assets/img/project-logos/threatpulse.svg" data-base="assets/img/project-logos/" data-shots="assets/img/screenshots/" id="portfolio-hero" class="img-fluid" alt="Project logo">
             </div>
             <script>
             (function() {
               var slug = new URLSearchParams(window.location.search).get('slug');
               var img = document.getElementById('portfolio-hero');
               if (slug && img && img.dataset.base) {
-                img.src = img.dataset.base + slug + '.svg';
-                img.alt = slug + ' logo';
+                // Prefer a real screenshot; fall back to the generated logo tile.
+                img.onerror = function() {
+                  img.onerror = null;
+                  img.classList.remove('is-shot');
+                  img.src = img.dataset.base + slug + '.svg';
+                  img.alt = slug + ' logo';
+                };
+                img.onload = function() {
+                  if (this.src.indexOf('/screenshots/') !== -1) {
+                    img.classList.add('is-shot');
+                  }
+                };
+                img.src = img.dataset.shots + slug + '.png';
+                img.alt = slug + ' screenshot';
               }
             })();
             </script>
