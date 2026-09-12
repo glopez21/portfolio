@@ -1,141 +1,88 @@
 # 4rch3.io — Project Portfolio
 
-> The gemstone of the homelab: a static portfolio site showcasing every
-> engineering project across four pillars — Cybersecurity, AI/ML, Python,
-> and Rust. Built with **Astro**, styled in a **dark-cyber** aesthetic,
-> deployed to **portfolio.4rch3.io** on the clu5t3r homelab.
+> The gemstone of the homelab: the personal portfolio site, showcasing
+> engineering projects across four pillars — Cybersecurity, AI/ML, Python,
+> and Rust (+ The Lab). Dark-cyber aesthetic, deployed on the homelab.
+
+## Stack
+
+Static frontend + Go admin CMS, containerized (Docker Compose):
+
+- **`web`** (nginx): serves `frontend/` (BootstrapMade "Personal"-based
+  template) as static files. Reverse-proxies `/api/`, `/admin/`, and
+  `/admin-static/` to the `admin` container.
+- **`admin`** (Go): Django-admin-style CMS. Exposes `/api/projects/`
+  (JSON, read from the Markdown source) and the edit UI at `/admin/`.
+  Writes `src/content/projects/*.md` **in place** — no database, no
+  export step. Also manages the `ai-quotes` SQLite DB (hero tagline
+  quotes) and stores contact-form messages.
+
+| Service | URL | Notes |
+|---|---|---|
+| Site | `http://<host>:8095/` | one-pager + `research.html` + `portfolio-details.html?slug=` |
+| CMS | `http://<host>:8095/admin/` | behind the site port (auth required) |
+| CMS (direct) | `http://<host>:8096/` | optional direct admin port |
 
 ## Quickstart
 
 ```bash
-npm install        # install dependencies
-npm run dev        # dev server at http://localhost:4321
-npm run build      # static build to dist/
-npm run preview    # preview the production build locally
+cp .env.example .env     # set ADMIN_USERNAME / ADMIN_PASSWORD (required!)
+make up                  # build + start both containers
 ```
 
-## Containerized deployment (Docker Compose)
+Credentials and ports live in `.env` (read automatically by compose).
+Both ports bind `0.0.0.0` (LAN-reachable).
 
-The whole stack ships as two containers — the static site behind nginx
-plus a Go admin CMS — and is reachable from any machine on the LAN:
+## Managing content
+
+Projects live in `src/content/projects/*.md` — the Markdown frontmatter
+is the **source of truth** (schema: title, pillar, tagline, status,
+order, featured, path, repo, live, stack, highlights, body; pillars:
+`cybersecurity`, `ai-ml`, `python`, `rust`, `homelab`).
+
+- Edit via the admin UI (`:8095/admin/`) — the JSON API reflects edits
+  immediately, **no rebuild needed** for content changes.
+- Frontend file changes require `make sync` (rebuilds the `web` image).
+- Project logos are generated: `make logos` (after adding/changing
+  projects) → `frontend/assets/img/project-logos/<slug>.svg`.
 
 ```bash
-cp .env.example .env        # review secrets first
-make up                     # build + start both containers
+make up      # build + start the stack
+make sync    # rebuild web after frontend edits
+make logs    # tail both containers
+make down    # stop (content is on the host — nothing lost)
 ```
 
-| Service | URL | Notes |
-|---|---|---|
-| Site | `http://<host>:8095/` | nginx serves the static build |
-| CMS | `http://<host>:8095/admin/` | Go admin, Django-admin-style UI, behind the same port |
-| CMS (direct) | `http://<host>:8096/` | optional direct port `:8096` |
+## Contact form
 
-Both ports bind `0.0.0.0`, so any LAN device can reach the site and the
-admin UI. Log in with `ADMIN_USERNAME` / `ADMIN_PASSWORD` from `.env`.
+The contact section posts to `POST /api/contact/` (Go admin), which
+appends each message to `/data/contact_messages.jsonl` on the
+`admin_data` volume. Read messages at **`:8095/admin/contact/`**
+(auth, newest first).
 
-### Managing content
-
-The **admin UI is the CMS** — edit projects there (title, pillar, status,
-features, featured/order flags, body copy). It writes the Markdown source
-files in `src/content/projects/` **in place**, so the content of truth is
-always the files the static site is built from (no database, no export
-step).
-
-```bash
-make sync   # rebuild + restart the site container so edits go live
-```
-
-Equivalent one-off commands:
-
-```bash
-make logs   # tail both containers
-make down   # stop the stack (content files are on the host, nothing lost)
-```
-
-Ports and credentials live in `.env` (see `.env.example`).
-
-## Project structure
+## Repo layout
 
 ```
-portfolio/
-├── src/
-│   ├── content/
-│   │   └── projects/          # ← project entries (Markdown + frontmatter)
-│   ├── content.config.ts      # collection schema + pillar taxonomy
-│   ├── components/            # Header, Footer, ProjectCard
-│   ├── layouts/Base.astro     # global shell
-│   ├── lib/meta.ts            # pillar colors, status labels
-│   ├── pages/
-│   │   ├── index.astro        # hero + featured + per-pillar sections
-│   │   ├── about.astro        # lab infrastructure + philosophy
-│   │   └── projects/
-│   │       ├── index.astro    # filterable grid (?pillar= python)
-│   │       └── [slug].astro   # deep project page
-│   └── styles/global.css      # dark-cyber theme tokens
-├── astro.config.mjs           # site URL + sitemap integration
-└── public/                    # favicon
+├── frontend/            # static site (nginx docroot) — the live pages
+│   ├── index.html       # one-pager: hero, about, skills, portfolio, contact
+│   ├── research.html    # research topics + reading log (client-side)
+│   ├── portfolio-details.html  # deep pages via ?slug=
+│   └── assets/js/       # projects.js, project-details.js, research.js,
+│                        # hero-quote.js — client-side data rendering
+├── admin-go/            # Go admin CMS (single binary, no DB)
+├── src/content/projects/  # project entries (Markdown) — content source of truth
+├── scripts/gen_project_logos.py
+├── nginx.conf           # static serving + /api,/admin proxying + no-store caching
+└── docker-compose.yml
 ```
 
-## Adding a project
+Note: this repo was originally scaffolded as an Astro site; the live
+frontend is the static `frontend/` template (the Astro `src/` content
+collection survives only as the Markdown content contract + logo
+generator input). See `AGENTS.md` / `dev_notes.md` for deep detail.
 
-The recommended path is the admin CMS (`make up` → `:8095/admin/` → add
-project → `make sync`). To add one directly as Markdown, create a new file
-in `src/content/projects/<slug>.md`:
+## Deployment (pending — M7)
 
-```md
----
-title: My Project
-pillar: rust            # cybersecurity | ai-ml | python | rust
-tagline: 'One-line description.'
-status: dev             # live | dev | planned | research
-order: 3               # lower = higher in pillar section
-featured: true         # appears in the hero spotlight
-path: my-project
-repo: https://github.com/user/repo
-live: https://app.4rch3.io
-stack: ['Rust', 'axum', 'tokio']
-highlights:
-  - 'Feature one'
-  - 'Feature with colon: still a string'
----
-Narrative — problem → approach → result. Supports full Markdown.
-```
-
-The card, pillar section, `/projects` grid, and detail page all update
-automatically. Highlights are YAML strings — the CMS export path handles
-quoting automatically, so write them naturally in the admin UI.
-
-## Admin/CMS — architecture
-
-```
-┌────────────┐   :8095      ┌──────────────────────────────┐   :80
-│ any LAN    │ ───────────► │ web (nginx)                  │
-│ device     │              │  /            → static site  │
-└────────────┘              │  /admin/  ⇢ proxy ──────────┼──► admin (Go)
-   ┌────────────┐  :8096     └──────────────────────────────┘      │ :8000
-   │ direct     │ ──────►    (same admin container)                ▼
-   └────────────┘                        src/content/projects/*.md
-                                          (writes in place — the
-                                           static build runs from these)
-```
-
-- `web` — multi-stage build (Node build → nginx runtime), reverse-proxies
-  `/admin/` and `/admin-static/` to the admin container.
-- `admin` — a single static Go binary (`admin-go/`): session-based login,
-  project list/add/edit/delete UI matching the schema of the content
-  collection, JSON API at `:8096/api/projects/`. No database — it reads
-  and writes the Markdown files directly.
-- The site keeps serving even if the admin container is down (nginx only
-  proxies on demand).
-
-## Pillars & status
-
-- Pillars: `cybersecurity`, `ai-ml`, `python`, `rust` (defined in `content.config.ts`)
-- Statuses: `live` (green), `dev` (cyan), `planned` (amber), `research` (muted)
-
-## Deployment (pending)
-
-When the site reaches 80% completeness, it deploys to
-`portfolio.4rch3.io` via the standard clu5t3r pipeline (Traefik + systemd +
-`./deploy.sh`, matching the convention used by the rest of the fleet). The
-`site` URL in `astro.config.mjs` already points there for sitemap/SEO.
+When the site reaches 80% completeness it deploys to
+`portfolio.4rch3.io` via the clu5t3r homelab pipeline (Traefik + DNS +
+router forwarding). The agreed routing plan lives in `dev_notes.md`.
