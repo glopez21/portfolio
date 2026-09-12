@@ -1,0 +1,84 @@
+name: portfolio
+
+# Production deployment (clu5t3r / Traefik fleet). Mirrors docker-compose.yml
+# with these differences:
+#   - no host port publishing — Traefik fronts both services on proxy-net
+#   - web  -> Host(4rch3.io) || Host(www.4rch3.io)   (security-headers, rate-limit)
+#   - admin-> Host(admin.4rch3.io)                    (+ cf-access-auth)
+#   - no ../ai-quotes mount — quote management stays on the m41n dev copy;
+#     the hero quote falls back to the static tagline when the env is unset.
+#
+# Usage (repo root on clu5t3r, .env next to this file):
+#   docker compose -f docker-compose.traefik.yml up -d --build
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: portfolio-web:latest
+    container_name: portfolio-web
+    restart: unless-stopped
+    depends_on:
+      - admin
+    networks:
+      - default
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy-net"
+      - "traefik.http.routers.portfolio.rule=Host(`4rch3.io`) || Host(`www.4rch3.io`)"
+      - "traefik.http.routers.portfolio.entrypoints=websecure"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.routers.portfolio.tls.certresolver=cloudflare"
+      - "traefik.http.routers.portfolio.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=80"
+
+  admin:
+    build:
+      context: ./admin-go
+      dockerfile: Dockerfile
+    image: portfolio-admin:latest
+    container_name: portfolio-admin
+    restart: unless-stopped
+    environment:
+      ADMIN_ADDR: 0.0.0.0:8000
+      PROJECTS_DIR: /content/projects
+      DATA_DIR: /data
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-}
+    volumes:
+      - admin_data:/data
+      - ./src/content/projects:/content/projects:rw
+    networks:
+      - default
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy-net"
+      - "traefik.http.routers.portfolio-admin.rule=Host(`admin.4rch3.io`)"
+      - "traefik.http.routers.portfolio-admin.entrypoints=websecure"
+      - "traefik.http.routers.portfolio-admin.tls=true"
+      - "traefik.http.routers.portfolio-admin.tls.certresolver=cloudflare"
+      - "traefik.http.routers.portfolio-admin.middlewares=security-headers@file,rate-limit@file,cf-access-auth@file"
+      - "traefik.http.services.portfolio-admin.loadbalancer.server.port=8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8000/api/projects/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  admin_data:
+
+networks:
+  proxy-net:
+    external: true
+    name: proxy-net
