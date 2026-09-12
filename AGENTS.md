@@ -66,6 +66,36 @@ README polishing and going public is deferred; the GitHub side is mirrored
 manually by the user. Note: `logsentry` on clu5t3r may lag its Forgejo
 main (m41n holds a merge of the web-UI + health-server lines).
 
+## Production (clu5t3r)
+
+`docker-compose.traefik.yml` deploys the same stack onto the clu5t3r
+Traefik fleet: compose project `portfolio`, checked out at
+`~/projects/portfolio` on clu5t3r (cloned from Forgejo — no credential
+store on that host; the clone URL embeds a token, same pattern as
+threat-pulse on m41n). Differences from the dev compose:
+
+- **No published ports** — Traefik fronts both services on `proxy-net`:
+  `web` → `Host(4rch3.io) || Host(www.4rch3.io)` with
+  security-headers + rate-limit; `admin` → `Host(admin.4rch3.io)` plus
+  `cf-access-auth@file`.
+- **No `../ai-quotes` mount** — quote management stays on the m41n dev
+  copy; on prod `/api/quotes/random` 404s by design and the hero falls
+  back to the static tagline. Don't "fix" this without deciding which
+  DB copy is canonical.
+- Prod `.env` was scp'd from m41n (same admin password, SMTP empty),
+  chmod 600. Deploy/update: `docker compose -f docker-compose.traefik.yml
+  up -d --build` on clu5t3r. Content edits still flow through the admin
+  UI or git pull + recreate.
+- The **fresh `admin_data` volume arrives root-owned** — same uid-1000
+  chown gotcha as dev: `docker exec -u 0 portfolio-admin chown -R
+  1000:1000 /data` on first deploy. Prod inbox was seeded with the one
+  real contact message from m41n.
+- Portal context: the homelab portal moved to `homelab.4rch3.io`
+  (+ `portal.4rch3.io` alias, "Homelab Portal", `external_url` updated)
+  when the portfolio took the apex — see dev_notes M7b.
+
+
+
 ## Frontend layout
 
 - `frontend/index.html` — one-page site (hero, about, skills, portfolio,

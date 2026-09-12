@@ -116,6 +116,24 @@
       (`link-in-text-block`, serious) → details-list links underlined,
       audit's stale `tr4c3` slug replaced with `threatpulse`; 0 violations
       across 4 pages. Cache-busters: projects.js v3, style.css v13.
+- [x] **M7b — Routing move executed (LAN)**: portal on clu5t3r re-labeled
+      `Host(homelab.4rch3.io) || Host(portal.4rch3.io)`, renamed "Homelab
+      Portal", `config.yaml` `external_url` + CORS origin →
+      `https://homelab.4rch3.io`. Portfolio deployed to clu5t3r via
+      `docker-compose.traefik.yml` (web: apex + www, security-headers +
+      rate-limit; admin: `admin.4rch3.io` + cf-access-auth; no published
+      ports; no ai-quotes mount — `/api/quotes/random` 404s on prod by
+      design, hero falls back to the static tagline; quote management
+      stays on m41n). Verified: 4rch3.io/www → portfolio 200,
+      homelab/portal → portal 200, threatpulse/eventflow untouched 200,
+      admin login 200. Prod inbox volume hit the uid-1000 chown gotcha
+      (fresh volume root-owned) — fixed, and seeded with the one real
+      contact message from m41n. clu5t3r's logsentry checkout
+      fast-forwarded to the merged Forgejo main (05ac94e) — all three
+      machines agree now. **analyst-agent source not found** on
+      m41n/clu5t3r/n4n0 (4l13n offline) — repo still pending, location
+      to be confirmed with user. Remaining M7: public DNS + router
+      port-forward (item 4).
 
 ## Routing plan (agreed with user — execute at M7)
 
@@ -135,24 +153,26 @@ Requested changes (3):
 3. **Custom project subdomains keep their current routes.**
 
 Execution checklist:
-- [ ] Deploy portfolio stack to clu5t3r (fleet convention — a compose
+- [x] Deploy portfolio stack to clu5t3r (fleet convention — a compose
       project on clu5t3r with Traefik labels; NOT a file-route back to m41n).
-      See `docker-compose.traefik.yml`/labels planned for `web`.
-- [ ] `web` Traefik router: `Host(4rch3.io) || Host(www.4rch3.io)`,
+      `docker-compose.traefik.yml` — compose project `portfolio`, checked out
+      at `~/projects/portfolio` on clu5t3r (cloned from Forgejo with a
+      one-time token URL; no credential store on that host).
+- [x] `web` Traefik router: `Host(4rch3.io) || Host(www.4rch3.io)`,
       entrypoint websecure, cloudflare certresolver, middlewares
       `security-headers@file,rate-limit@file`.
-- [ ] `admin` Traefik router: `Host(admin.4rch3.io)`, + `cf-access-auth@file`
+- [x] `admin` Traefik router: `Host(admin.4rch3.io)`, + `cf-access-auth@file`
       (keep the admin off the plain web).
-- [ ] Portal: router rule → `Host(homelab.4rch3.io)`; keep `portal.4rch3.io`
+- [x] Portal: router rule → `Host(homelab.4rch3.io)`; keep `portal.4rch3.io`
       as a redirect alias; portal `config.yaml` `external_url` →
       `https://homelab.4rch3.io` (keeps login/recorded links correct).
 - [ ] DNS (Cloudflare): `4rch3.io`, `www.4rch3.io`, `homelab.4rch3.io`,
       `admin.4rch3.io`, plus **wildcard `*.4rch3.io`** (portal serves
       `<service>.4rch3.io` dynamically) → public IP.
 - [ ] Router: forward TCP 80/443 → clu5t3r.
-- [ ] Service discovery labels (`4rch3.io.*` on threat-pulse, augur, …):
+- [x] Service discovery labels (`4rch3.io.*` on threat-pulse, augur, …):
       untouched — their routes are unaffected by the apex/portal moves.
-- [ ] Verify: `4rch3.io` loads portfolio; `homelab.4rch3.io` loads portal;
+- [x] Verify: `4rch3.io` loads portfolio; `homelab.4rch3.io` loads portal;
       `threatpulse.4rch3.io` / `eventflow.4rch3.io` still resolve as today.
 
 ### Frontend rewrite (#4) — DONE (frontend is the `frontend/` template)
