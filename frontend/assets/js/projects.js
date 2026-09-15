@@ -82,6 +82,18 @@
     });
 
     $('.venobox').venobox({ 'share': false });
+
+    // fitRows computes row heights from element heights, so items collapse
+    // and overlap if a row is laid out before the SVG logos have intrinsic
+    // size. Re-layout whenever an image finishes loading and once the full
+    // page (incl. cache hits) has loaded. .project-logo also reserves a 4:3
+    // slot in CSS so the first pass is already stable.
+    $container.on('load', 'img', function() {
+      portfolioIsotope.isotope('layout');
+    });
+    $(window).on('load', function() {
+      portfolioIsotope.isotope('layout');
+    });
   }
 
   function showError() {

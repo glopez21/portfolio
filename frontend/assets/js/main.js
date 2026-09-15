@@ -2,6 +2,21 @@
 !(function($) {
   "use strict";
 
+  // One-at-a-time section template: the page is a 100vh hero with the content
+  // sections overlaid and revealed via .section-show. History-scroll
+  // restoration would otherwise re-position the viewport where a section-used
+  // to-be, showing a blank page or appearing to jump to the Contact section on
+  // refresh. Pin scroll restoration to the hero; the hash-activation logic
+  // below still honors an explicit #section.
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+  $(window).on("pageshow", function() {
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  });
+
   // Nav Menu
   $(document).on('click', '.nav-menu a, .mobile-nav a', function(e) {
     if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {

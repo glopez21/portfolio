@@ -915,6 +915,16 @@ section .container {
   background: rgba(0, 0, 0, 0.6);
 }
 
+.portfolio .portfolio-wrap img.project-logo {
+  /* Reserve the logo's real 4:3 slot (800x600 SVGs carry no width/height).
+     Keeps isotope fitRows rows stable before images load — otherwise the
+     generated rows collapse/overlap until a filter re-layout. */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  display: block;
+}
+
 .portfolio .portfolio-item.filter-homelab {
   width: 100%;
   display: flex;
