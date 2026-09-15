@@ -78,10 +78,11 @@ threat-pulse on m41n). Differences from the dev compose:
   `web` → `Host(4rch3.io) || Host(www.4rch3.io)` with
   security-headers + rate-limit; `admin` → `Host(admin.4rch3.io)` plus
   `cf-access-auth@file`.
-- **No `../ai-quotes` mount** — quote management stays on the m41n dev
-  copy; on prod `/api/quotes/random` 404s by design and the hero falls
-  back to the static tagline. Don't "fix" this without deciding which
-  DB copy is canonical.
+- **Quotes DB is mirrored to prod** — m41n's `../ai-quotes/instance/ai_quotes.db`
+  is the canonical copy; it's scp'd to clu5t3r `./quotes/` and mounted as
+  `/quotes-instance` (`AI_QUOTES_DB`), so `/api/quotes/random` works on prod.
+  After editing quotes on m41n, run `make deploy-quotes` (mirror + chown) and
+  recreate the admin container. `quotes/` is gitignored.
 - Prod `.env` was scp'd from m41n (same admin password, SMTP empty),
   chmod 600. Deploy/update: `docker compose -f docker-compose.traefik.yml
   up -d --build` on clu5t3r. Content edits still flow through the admin
