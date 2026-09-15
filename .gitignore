@@ -28,3 +28,6 @@ admin-go/portfolio-admin
 
 # screenshot tooling venv
 .venv/
+
+# quotes DB mirrored from m41n onto prod (see make deploy-quotes)
+quotes/

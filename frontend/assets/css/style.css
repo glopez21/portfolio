@@ -1661,15 +1661,15 @@ body.in-modal .portfolio-details #portfolio-about ul {
 
 /* One-page template hides every `section` (absolute, opacity: 0) until
    JS adds `.section-show`. The standalone research page has no anchor to
-   trigger that, so force its section into normal visible flow. The solid
-   background also pins contrast ratios (bg.jpg varies by region). */
+   trigger that, so force its section into normal visible flow.
+   Transparent background lets the global bg.jpg graph (body::before)
+   show through uniformly across all pages. */
 section#research.research {
   position: static;
   top: auto;
   bottom: auto;
   opacity: 1;
   padding-bottom: 45px;
-  background: #040404;
 }
 
 /* ---------- Research cards: status chip + footer ---------- */

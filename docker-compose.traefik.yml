@@ -5,8 +5,8 @@ name: portfolio
 #   - no host port publishing — Traefik fronts both services on proxy-net
 #   - web  -> Host(4rch3.io) || Host(www.4rch3.io)   (security-headers, rate-limit)
 #   - admin-> Host(admin.4rch3.io)                    (+ cf-access-auth)
-#   - no ../ai-quotes mount — quote management stays on the m41n dev copy;
-#     the hero quote falls back to the static tagline when the env is unset.
+#   - quotes DB is mirrored from the m41n dev copy into ./quotes/ (see
+#     `make deploy-quotes`); the hero quote cycles from it on prod too.
 #
 # Usage (repo root on clu5t3r, .env next to this file):
 #   docker compose -f docker-compose.traefik.yml up -d --build
@@ -57,6 +57,7 @@ services:
       DATA_DIR: /data
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      AI_QUOTES_DB: /quotes-instance/ai_quotes.db
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_USER: ${SMTP_USER:-}
@@ -66,6 +67,10 @@ services:
     volumes:
       - admin_data:/data
       - ./src/content/projects:/content/projects:rw
+      # Quotes DB mirrored from m41n (canonical copy lives at
+      # ~/projects/ai-quotes/instance/ on m41n; re-scp to refresh — add new
+      # quotes via m41n admin UI, then `make deploy-quotes`).
+      - ./quotes:/quotes-instance:rw
     networks:
       - default
       - proxy-net
