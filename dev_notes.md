@@ -168,6 +168,53 @@
       (4) Access app for admin.4rch3.io → then set CF_ACCESS_TEAM/
       AUD/ENFORCE on the verifier. Wildcard deletion + final public
       verification = mine, after (1)+(3).
+- [ ] **M7d — 2026-09-15: prod bug triage + portal auth gate (in
+      progress)**: User reported three issues after the M7b/M7c deploy —
+      all diagnosed and fixed in prod today.
+      (1) **Portfolio hero losing its background + "refresh lands on the
+      Contact page"**. Root cause: `rate-limit@file` (avg 100, burst 50,
+      1m) was applied to the whole `web` router; a single page load bursts
+      ~50 requests (27 SVG logos + assets), so on refresh assets (incl.
+      `bg.jpg` + logos) got **429s** → no background + broken grid.
+      The "Contact page" weirdness was browser scroll-restoration
+      restoring a viewport into the hidden-section overlay (template shows
+      sections one-at-a-time behind a 100vh hero; no JS writes hashes, but
+      it reads `location.hash`). Fixes: Traefik router split — static
+      assets stay on the bare-host router (security-headers only), new
+      `portfolio-api` router (`Host && PathPrefix(/api,/admin,/admin-static)`)
+      keeps rate-limit (Traefik rule-length priority picks it);
+      `main.js` sets `history.scrollRestoration=manual` + scrolls to top
+      on pageshow when no hash. (2) **Projects grid collapsed/overlapping
+      until first tab click**: isotope `fitRows` computed layout before the
+      800×600 SVG logos (no intrinsic size) loaded → rows collapsed +29px.
+      Fixes: `.project-logo` reserves `aspect-ratio: 4/3` in CSS +
+      `projects.js` re-layouts isotope on img load and window load.
+      (3) **Portal cards forever-"loading"**: dashboard rendered to guests
+      but every card action (`/api/service-panel`, `/api/services/status`,
+      `/api/deploy-panel`) is `RequireAuth` → 401 on the htmx request →
+      modal stuck on its loading placeholder. `status_page_public: false`
+      existed but was **never enforced** (dead config). Decided + done:
+      enforce it — `Index` behind login in
+      `internal/handlers/dashboard.go` (publicStatus field + ctor param,
+      guests → 303 `/login`), `cmd/server/main.go` passes
+      `cfg.Monitor.StatusPagePublic`. Committed "dashboard: gate index
+      behind auth when status_page_public=false", pushed Forgejo 4rch3.io
+      main. **Deploy note on portal**: clu5t3r `~/4rch3.io` is NOT a git
+      repo (plain build dir — `git reset --hard` → "not a git
+      repository"); deploy = rsync/scp changed sources over + `docker
+      compose build portal && docker compose up -d portal` (multi-stage
+      Dockerfile compiles in a golang builder container, no Go toolchain
+      needed on clu5t3r). Verified on prod: guest `/` → 303 → `/login`
+      (local + via hosts), `/api/health` still public, wrong-creds login
+      round-trips properly (CSRF+htmx work). Metrics panels render once an
+      admin is logged in (services have docker_ids). Portfolio prod
+      re-verified with Playwright: 3 clean grid rows (y=314/553/792),
+      logo slots 279×209 (4:3), hero bg painting (25,680 unique colors),
+      0 asset 4xx/429s (only `/api/quotes/random` 404 — by design, no
+      ai-quotes mount on prod), refresh stays at scrollY=0 on the hero,
+      `make a11y` still 0 violations (4 pages). Portal admin password
+      still unknown → user should log in to homelab.4rch3.io and confirm
+      cards/panels/charts render.
 
 ## Routing plan (agreed with user — execute at M7)
 
