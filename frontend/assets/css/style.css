@@ -443,6 +443,7 @@ section .container {
   font-size: 20px;
   font-family: "IBM Plex Mono", "DejaVu Sans Mono", monospace;
   vertical-align: -1px;
+  text-transform: none;
 }
 
 /*--------------------------------------------------------------
