@@ -15,7 +15,11 @@
         'The scale-up problem is really an error problem: correcting decoherence faster than it can corrupt the computation. Most of my reading time goes into the surface-code stabilizer machinery and what it takes to run a single logical qubit.',
         'The tools are maturing, so this is a practical track too — I want to judge a quantum proposal on the physics, not the hype.'
       ],
-      links: []
+      links: [
+        { url: 'https://en.wikipedia.org/wiki/Quantum_computing', label: 'Quantum computing — Wikipedia' },
+        { url: 'https://en.wikipedia.org/wiki/Quantum_error_correction', label: 'Quantum error correction' },
+        { url: 'https://en.wikipedia.org/wiki/Surface_code', label: 'Surface code (fault tolerance)' }
+      ]
     },
     {
       id: 'liquid-neural-networks',
@@ -30,7 +34,10 @@
         'What pulls me in is the parameter efficiency. A liquid cell encodes dynamics in its time constants rather than its width, so you get sequence memory with a handful of neurons and no attention stack.',
         'The honest questions are stability and interpretability — fixed-step vs adaptive ODE solvers, and what changes when the trained dynamics get exported to a smaller target.'
       ],
-      links: []
+      links: [
+        { url: 'https://en.wikipedia.org/wiki/Liquid_neural_network', label: 'Liquid neural network — Wikipedia' },
+        { url: 'https://arxiv.org/abs/2006.04439', label: 'Liquid Time-constant Networks — arXiv:2006.04439' }
+      ]
     },
     {
       id: 'agentic-cybersecurity',
@@ -45,7 +52,10 @@
         'The interesting failure mode is trust, not capability. An agent that acts at machine speed has to explain itself, halt on ambiguity, and leave a replayable audit trail.',
         'I collect small evals around two axes: task success on synthetic IR scenarios, and safety — how often an agent takes a destructive action without a human gate.'
       ],
-      links: []
+      links: [
+        { url: 'https://attack.mitre.org/', label: 'MITRE ATT&CK' },
+        { url: 'https://csrc.nist.gov/pubs/sp/800/61/r2/final', label: 'NIST SP 800-61 — incident response' }
+      ]
     },
     {
       id: 'riemann-zeta',
@@ -60,11 +70,17 @@
         'The hypothesis is one door: is there an analytic structure that forces every nontrivial zero onto the critical line? The primes hide inside it, which is why the problem refuses to leave number theory alone.',
         'My level is patient self-study — Euler products and the functional equation are tractable, so that is where the notes live for now.'
       ],
-      links: []
+      links: [
+        { url: 'https://en.wikipedia.org/wiki/Riemann_hypothesis', label: 'Riemann hypothesis — Wikipedia' },
+        { url: 'https://en.wikipedia.org/wiki/Riemann_zeta_function', label: 'Riemann zeta function — Wikipedia' }
+      ]
     }
   ];
 
   var LOG = [
+    { date: '2026-09-19', text: 'LTC paper walkthrough (arXiv:2006.04439) — the liquid-state ODE framing, and what the adaptive-solver cost looks like once the cell is exported.' },
+    { date: '2026-09-15', text: 'Quantum error correction: walked a full distance-3 surface-code stabilizer cycle in the notes; queued distance-5 for the NOMAD sandbox.' },
+    { date: '2026-09-12', text: 'Re-read NIST SP 800-61 rev 2 alongside the ThreatPulse gate — mapping detect/contain/eradicate onto the agent’s approval checkpoints.' },
     { date: '2026-09-08', text: 'Re-reviewed the decoherence notes from the two-level-system papers; queued the surface-code read and how it overlaps with the NOMAD sandbox.' },
     { date: '2026-09-05', text: 'LNN probe: ONNX export of the LTC cell, adaptive vs fixed-step solver comparison on the same trajectory.' },
     { date: '2026-09-02', text: 'Agentic IR eval harness — measuring destructive-action rate with vs without a human-gate stop.' },

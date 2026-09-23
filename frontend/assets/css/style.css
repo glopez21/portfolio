@@ -444,6 +444,14 @@ section .container {
   font-family: "IBM Plex Mono", "DejaVu Sans Mono", monospace;
   vertical-align: -1px;
   text-transform: none;
+  color: #18d26e;
+  filter: drop-shadow(0 0 2px rgba(24, 210, 110, 0.25));
+  transition: color 0.25s ease, filter 0.25s ease;
+}
+
+.section-title h2 .section-symbol:hover, .section-title h1 .section-symbol:hover {
+  color: #4ceb95;
+  filter: drop-shadow(0 0 5px rgba(24, 210, 110, 0.7));
 }
 
 /*--------------------------------------------------------------
@@ -1802,7 +1810,7 @@ section#research.research {
 
 .research-note .note-links a {
   color: #22d3ee;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .research-note .note-links a:hover {
