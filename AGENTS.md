@@ -20,15 +20,22 @@ Static frontend + Go admin CMS, containerized:
   at `/admin/contact/` (auth, newest first). The `admin_data` volume is
   owned by uid 1000 — re-`chown` it if the volume ever gets recreated as
   root and store starts failing.
-- `admin` (contact email notify): when `SMTP_HOST` + `CONTACT_EMAIL` are
-  set (see `.env`), each contact message also emails the owner via
-  net/smtp (STARTTLS, plain auth) — fire-and-forget goroutine, so the
-  visitor still gets `OK` even if SMTP fails (errors only logged; the
-  JSONL inbox is the durable record). `Reply-To` is set to the visitor's
-  address. Visitor-controlled fields are CR/LF-sanitized against header
-  injection. Verified with an in-network SMTP sink container (Gmail
-  app-password goes in `.env` `SMTP_PASSWORD`; empty = notify attempts
-  auth and fails with a startup-log warning).
+- `admin` (contact): the site's contact form posts urlencoded data to
+  `POST /api/contact/`, which appends one JSON line per message to
+  `CONTACT_FILE` (`/data/contact_messages.jsonl`, named `admin_data`
+  volume) and returns the literal body `OK` (the frontend's
+  `php-email-form` validate.js expects exactly `OK`). Messages are readable
+  at `/admin/contact/` (auth, newest first). The `admin_data` volume is
+  owned by uid 1000 — re-`chown` it if the volume ever gets recreated as
+  root and store starts failing.
+- `admin` (contact owner-notify): **SMTP-relay-free by design.** The JSONL
+  inbox above is the durable owner-facing record, and replies go out of the
+  owner's own mailbox `CONTACT_EMAIL` (a `@pm.me` Proton address,
+  independent of this site's MX). A Gmail relay was wired briefly but
+  removed — Gmail rewrites `From` to its authenticated user, so a `@pm.me`
+  `From` could never be sent through it. The Go notify code is still
+  gated on empty `SMTP_HOST` (documented in `admin-go/main.go`) and stays
+  off; no SMTP creds live in `.env` or the compose files.
 
 ## Development
 
