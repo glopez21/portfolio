@@ -439,6 +439,12 @@ section .container {
   color: #fff;
 }
 
+.section-title h2 .section-symbol, .section-title h1 .section-symbol {
+  font-size: 20px;
+  font-family: "IBM Plex Mono", "DejaVu Sans Mono", monospace;
+  vertical-align: -1px;
+}
+
 /*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
