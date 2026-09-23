@@ -175,7 +175,7 @@ talk through `/api/projects/` — the Markdown contract in
 ## Contact
 
 - Contact section (`index.html#contact`) has two info boxes (Email Me =
-  `genghis.lopez@gmail.com`; Social Profiles = GitHub/LinkedIn/Medium,
+  `admin.4rch3.io@pm.me`; Social Profiles = GitHub/LinkedIn/Medium,
   matching the hero links) — the template's fake address/phone were removed.
 - The form (`class="php-email-form"`, `action="/api/contact/"`) is validated
   by `assets/vendor/php-email-form/validate.js`, which AJAX-POSTs its
