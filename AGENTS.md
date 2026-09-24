@@ -18,6 +18,14 @@ Static frontend + Go admin CMS, containerized:
 - `admin` (per-pillar pages): `/admin/pillars/<pillar>/` (auth) shows that
   pillar's projects as an evenly-arranged card grid — one equal card per
   project, tiles across the viewport instead of one vertical scroll marathon.
+- `admin` (list pages are card grids too): `/admin/projects/`,
+  `/admin/quotes/`, and `/admin/contact/` all use the same
+  `auto-fill minmax(300px, 1fr)` tile layout as the dashboard and pillar
+  pages — one card per project/quote/message, no `<table>`, no vertical
+  marathon. The shared `.card-grid` / `.card-inner` rules live in
+  `admin-go/static/admin.css` (a card is a `.module` with a title, meta
+  badges, and a pinned actions row). The quotes list keeps its search +
+  show-archived tools above the grid.
   Pillar order + human labels come from one shared source (`pillarOrder` +
   `pillarLabel` in `admin-go/main.go`, fed to templates via the `pillarLabel`
   FuncMap) so the dashboard and pillar pages never drift.

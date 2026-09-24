@@ -1,35 +1,36 @@
 {{template "base_head" (dict "Title" "Select project to change | Portfolio CMS" "BodyClass" "change-list")}}
 <div class="breadcrumbs"><a href="/admin/">Home</a> › Projects</div>
-<div id="content" class="colMS">
-  <h1>Projects</h1>
+<div id="content">
+  <h1>Projects <span class="count">{{len .Projects}} project(s)</span></h1>
   <div id="content-main">
-    <div id="changelist" class="module">
-      <div class="changelist-tools">
-        <a class="addlink" href="/admin/projects/add/">+ Add project</a>
-        <span class="count">{{len .Projects}} project(s)</span>
+    <div class="changelist-tools">
+      <a class="addlink" href="/admin/projects/add/">+ Add project</a>
+      <span class="count">tile view — one card per project</span>
+    </div>
+    <div class="card-grid">
+      {{range .Projects}}
+      <div class="module card project-card{{if .Featured}} featured-row{{end}}">
+        <div class="card-inner">
+          <h2 class="card-title">
+            <span class="pillar-dot pillar-{{.Pillar}}"></span>
+            <a href="/admin/projects/{{.Slug}}/">{{.Title}}</a>
+          </h2>
+          <div class="card-meta">
+            <span class="pillar-badge pillar-{{.Pillar}}">{{pillarLabel .Pillar}}</span>
+            <span class="status status-{{.Status}}">{{statusLabel .Status}}</span>
+            <span>order {{.Order}}</span>
+            <span class="{{if .Featured}}featured-yes{{else}}featured-no{{end}}">{{if .Featured}}★ featured{{else}}not featured{{end}}</span>
+          </div>
+          <div class="card-slug"><code>{{if .Live}}live:{{.Live}}{{else}}{{.Slug}}{{end}}</code></div>
+          <div class="card-actions">
+            <a class="changelink" href="/admin/projects/{{.Slug}}/">Change</a>
+            <a class="deletelink" href="/admin/projects/{{.Slug}}/delete/">Delete</a>
+          </div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th><th>Pillar</th><th>Status</th><th>Order</th><th>Featured</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .Projects}}
-          <tr class="{{if .Featured}}featured-row{{end}}">
-            <th><a href="/admin/projects/{{.Slug}}/">{{.Title}}</a></th>
-            <td><span class="pillar-badge pillar-{{.Pillar}}">{{pillarLabel .Pillar}}</span></td>
-            <td><span class="status status-{{.Status}}">{{statusLabel .Status}}</span></td>
-            <td>{{.Order}}</td>
-            <td>{{if .Featured}}<span class="featured-yes">★</span>{{else}}<span class="featured-no">—</span>{{end}}</td>
-            <td class="actions">
-              <a class="changelink" href="/admin/projects/{{.Slug}}/">Change</a>
-              <a class="deletelink" href="/admin/projects/{{.Slug}}/delete/">Delete</a>
-            </td>
-          </tr>
-          {{end}}
-        </tbody>
-      </table>
+      {{else}}
+      <p class="help">No projects yet — add the first one above.</p>
+      {{end}}
     </div>
   </div>
 </div>

@@ -1,35 +1,30 @@
 {{template "base_head" (dict "Title" "Contact messages | Portfolio CMS" "BodyClass" "change-list")}}
 <div class="breadcrumbs"><a href="/admin/">Home</a> › Contact</div>
-<div id="content" class="colMS">
-  <h1>Contact messages</h1>
+<div id="content">
+  <h1>Contact messages <span class="count">{{.Count}} message(s)</span></h1>
   <div id="content-main">
-    <div id="changelist" class="module">
-      <div class="changelist-tools">
-        <span class="count">{{.Count}} message(s)</span>
+    <div class="changelist-tools">
+      <span class="count">tile view — newest first</span>
+    </div>
+    {{if .Messages}}
+    <div class="card-grid">
+      {{range .Messages}}
+      <div class="module card contact-card">
+        <div class="card-inner">
+          <h2 class="card-title contact-name">
+            <a href="mailto:{{.Email}}">{{.Name}}</a>
+          </h2>
+          <div class="contact-email"><a href="mailto:{{.Email}}">{{.Email}}</a></div>
+          {{if .Subject}}<div class="contact-subject">{{.Subject}}</div>{{end}}
+          <div class="contact-message">{{.Message}}</div>
+          <div class="card-stats">{{.Time}}</div>
+        </div>
       </div>
-      {{if .Messages}}
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .Messages}}
-          <tr>
-            <td class="nowrap">{{.Time}}</td>
-            <td>{{.Name}}</td>
-            <td><a href="mailto:{{.Email}}">{{.Email}}</a></td>
-            <td>{{.Subject}}</td>
-            <td class="message">{{.Message}}</td>
-          </tr>
-          {{end}}
-        </tbody>
-      </table>
-      {{else}}
-      <p class="help">No messages yet. Submissions to the contact form on the site will appear here.</p>
       {{end}}
     </div>
+    {{else}}
+    <p class="help">No messages yet. Submissions to the contact form on the site will appear here.</p>
+    {{end}}
   </div>
 </div>
 {{template "base_foot" .}}

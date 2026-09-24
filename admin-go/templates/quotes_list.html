@@ -1,49 +1,46 @@
 {{template "base_head" (dict "Title" "Quotes | Portfolio CMS" "BodyClass" "change-list")}}
 <div class="breadcrumbs"><a href="/admin/">Home</a> › <a href="/admin/quotes/">Quotes</a></div>
-<div id="content" class="colMS">
+<div id="content">
   <h1>Quotes <span class="count">{{.Total}} total{{if .IncludeArchived}} · {{.Archived}} archived{{end}}</span></h1>
   <div id="content-main">
-    <div id="changelist" class="module">
-      <div class="changelist-tools">
-        <a class="addlink" href="/admin/quotes/add/">+ Add quote</a>
-        {{if .IncludeArchived}}
-        <a class="closelink" href="/admin/quotes/{{if .Search}}?q={{.Search}}{{end}}">Hide archived</a>
-        {{else}}
-        <a class="changelink" href="/admin/quotes/?archived=1{{if .Search}}&q={{.Search}}{{end}}">Show archived ({{.Archived}})</a>
-        {{end}}
+    <div class="changelist-tools">
+      <a class="addlink" href="/admin/quotes/add/">+ Add quote</a>
+      {{if .IncludeArchived}}
+      <a class="closelink" href="/admin/quotes/{{if .Search}}?q={{.Search}}{{end}}">Hide archived</a>
+      {{else}}
+      <a class="changelink" href="/admin/quotes/?archived=1{{if .Search}}&q={{.Search}}{{end}}">Show archived ({{.Archived}})</a>
+      {{end}}
+    </div>
+    <form method="get" action="/admin/quotes/" class="search-form">
+      <input type="search" name="q" value="{{.Search}}" placeholder="Search text or author">
+      {{if .IncludeArchived}}<input type="hidden" name="archived" value="1">{{end}}
+      <button type="submit">Search</button>
+    </form>
+    <div class="card-grid">
+      {{range .Quotes}}
+      <div class="module card quote-card{{if .IsArchived}} archived-row{{end}}">
+        <div class="card-inner">
+          <blockquote class="card-quote">
+            <a href="/admin/quotes/{{.ID}}/">{{.Text}}</a>
+          </blockquote>
+          <div class="card-meta">
+            <span class="quote-author">— {{.Author}}</span>
+            {{if .Category}}<span class="pillar-badge">{{.Category}}</span>{{end}}
+            <span class="{{if .IsFavorite}}featured-yes{{else}}featured-no{{end}}">{{if .IsFavorite}}★ favorite{{end}}</span>
+            {{if .IsArchived}}<span class="status status-research">archived</span>{{end}}
+          </div>
+          <div class="card-stats">views {{.Views}} · up {{.Upvotes}} · down {{.Downvotes}}</div>
+          <div class="card-actions">
+            <a class="changelink" href="/admin/quotes/{{.ID}}/">Change</a>
+            <a class="changelink" href="/admin/quotes/{{.ID}}/favorite/">{{if .IsFavorite}}Unfavorite{{else}}Favorite{{end}}</a>
+            <a class="changelink" href="/admin/quotes/{{.ID}}/archive/">{{if .IsArchived}}Unarchive{{else}}Archive{{end}}</a>
+            <a class="deletelink" href="/admin/quotes/{{.ID}}/delete/">Delete</a>
+          </div>
+        </div>
       </div>
-      <form method="get" action="/admin/quotes/" class="search-form">
-        <input type="search" name="q" value="{{.Search}}" placeholder="Search text or author">
-        {{if .IncludeArchived}}<input type="hidden" name="archived" value="1">{{end}}
-        <button type="submit">Search</button>
-      </form>
-      <table>
-        <thead>
-          <tr>
-            <th>Quote</th><th>Author</th><th>Category</th><th>Favorite</th><th>Archived</th><th>Stats</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .Quotes}}
-          <tr class="{{if .IsArchived}}archived-row{{end}}">
-            <th><a href="/admin/quotes/{{.ID}}/">{{.Text}}</a></th>
-            <td>{{.Author}}</td>
-            <td>{{.Category}}</td>
-            <td>{{if .IsFavorite}}<span class="featured-yes">★</span>{{else}}<span class="featured-no">—</span>{{end}}</td>
-            <td>{{if .IsArchived}}<span class="status status-research">archived</span>{{else}}<span class="featured-no">—</span>{{end}}</td>
-            <td class="stats">views {{.Views}} · up {{.Upvotes}} · down {{.Downvotes}}</td>
-            <td class="actions">
-              <a class="changelink" href="/admin/quotes/{{.ID}}/">Change</a>
-              <a class="changelink" href="/admin/quotes/{{.ID}}/favorite/">{{if .IsFavorite}}Unfavorite{{else}}Favorite{{end}}</a>
-              <a class="changelink" href="/admin/quotes/{{.ID}}/archive/">{{if .IsArchived}}Unarchive{{else}}Archive{{end}}</a>
-              <a class="deletelink" href="/admin/quotes/{{.ID}}/delete/">Delete</a>
-            </td>
-          </tr>
-          {{else}}
-          <tr><td colspan="7">No quotes found.</td></tr>
-          {{end}}
-        </tbody>
-      </table>
+      {{else}}
+      <p class="help">No quotes found.</p>
+      {{end}}
     </div>
     <div class="help-info">
       <p>Quotes live in the external <code>ai-quotes</code> SQLite database (mounted read-write into this container). Edits appear immediately everywhere the DB is read.</p>
