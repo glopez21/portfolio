@@ -467,21 +467,7 @@ func newApp(cfg config) (*App, error) {
 	}
 	funcs := template.FuncMap{
 		"quotesEnabled": func() bool { return a.quotes != nil },
-		"pillarLabel": func(p string) string {
-			switch p {
-			case "ai-ml":
-				return "AI / ML"
-			case "cybersecurity":
-				return "Cybersecurity"
-			case "python":
-				return "Python"
-			case "rust":
-				return "Rust"
-			case "homelab":
-				return "Homelab"
-			}
-			return p
-		},
+		"pillarLabel": pillarLabel,
 		"statusLabel": func(s string) string {
 			switch s {
 			case "live":
@@ -571,34 +557,47 @@ func (a *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/", http.StatusFound)
 }
 
+// group is one pillar's bucket of projects. It is the SINGLE shared shape
+// used by the dashboard landing (handleAdmin), the per-pillar pages
+// (handlePillar), and the groupByPillar helper — so the ordering, labels,
+// and bucket shape never drift between them.
+type group struct {
+	Key      string
+	Projects []Project
+}
+
+// pillarOrder is the canonical display order of pillars. Both the dashboard
+// landing and the per-pillar pages iterate it, so a change here reorders
+// both surfaces at once.
+var pillarOrder = []string{"cybersecurity", "ai-ml", "python", "rust", "homelab"}
+
+// pillarLabel returns the human label for a pillar key. It is the single
+// source of truth used by the dashboard landing, the per-pillar pages, and
+// the template FuncMap — so the label text is guaranteed identical on every
+// surface that shows a pillar.
+func pillarLabel(key string) string {
+	switch key {
+	case "cybersecurity":
+		return "Cybersecurity"
+	case "ai-ml":
+		return "AI / ML"
+	case "python":
+		return "Python"
+	case "rust":
+		return "Rust"
+	case "homelab":
+		return "Homelab"
+	}
+	return key
+}
+
 func (a *App) handleAdmin(w http.ResponseWriter, r *http.Request) {
 	if !a.authenticated(r) {
 		http.Redirect(w, r, "/admin/login/", http.StatusFound)
 		return
 	}
-	type group struct {
-		Key      string
-		Projects []Project
-	}
 	projects := a.store.List()
-	byPillar := map[string][]Project{}
-	for _, p := range projects {
-		byPillar[p.Pillar] = append(byPillar[p.Pillar], p)
-	}
-	order := []string{"cybersecurity", "ai-ml", "python", "rust", "homelab"}
-	var groups []group
-	seen := map[string]bool{}
-	for _, k := range order {
-		if len(byPillar[k]) > 0 {
-			groups = append(groups, group{Key: k, Projects: byPillar[k]})
-			seen[k] = true
-		}
-	}
-	for k, v := range byPillar {
-		if !seen[k] {
-			groups = append(groups, group{Key: k, Projects: v})
-		}
-	}
+	groups := groupByPillar(projects)
 	type summary struct {
 		Total        int
 		Groups       []group
@@ -606,19 +605,67 @@ func (a *App) handleAdmin(w http.ResponseWriter, r *http.Request) {
 		ContactCount int
 		Featured     int
 	}
-	s := summary{Total: len(projects), Groups: groups}
+	s := summary{Groups: groups}
+	for _, p := range projects {
+		s.Total++
+		if p.Featured {
+			s.Featured++
+		}
+	}
 	if a.quotes != nil {
 		if n, err := a.quotes.Count(); err == nil {
 			s.QuoteCount = n
 		}
 	}
 	s.ContactCount = a.contactCount()
+	a.render(w, "index.html", s)
+}
+
+// groupByPillar buckets projects by pillar and returns the buckets in the
+// canonical homepage order (used by both the dashboard landing and the
+// per-pillar pages so the ordering and labels never drift).
+func groupByPillar(projects []Project) []group {
+	byPillar := map[string][]Project{}
 	for _, p := range projects {
-		if p.Featured {
-			s.Featured++
+		byPillar[p.Pillar] = append(byPillar[p.Pillar], p)
+	}
+	var out []group
+	for _, k := range pillarOrder {
+		if len(byPillar[k]) > 0 {
+			out = append(out, group{Key: k, Projects: byPillar[k]})
 		}
 	}
-	a.render(w, "index.html", s)
+	return out
+}
+
+// handlePillar renders one pillar's projects as an evenly-arranged card
+// grid (one card per project, no vertical scroll marathon).
+func (a *App) handlePillar(w http.ResponseWriter, r *http.Request) {
+	if !a.authenticated(r) {
+		http.Redirect(w, r, "/admin/login/", http.StatusFound)
+		return
+	}
+	key := strings.TrimPrefix(r.URL.Path, "/admin/pillars/")
+	key = strings.TrimSuffix(key, "/")
+	type summary struct {
+		Key      string
+		Label    string
+		Total    int
+		Projects []Project
+	}
+	s := summary{Key: key, Label: pillarLabel(key)}
+	for _, p := range a.store.List() {
+		if p.Pillar == key {
+			s.Projects = append(s.Projects, p)
+			s.Total++
+		}
+	}
+	// unknown pillar → 404 rather than a confusing empty page
+	if s.Total == 0 {
+		http.NotFound(w, r)
+		return
+	}
+	a.render(w, "pillar.html", s)
 }
 
 func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -1025,6 +1072,7 @@ func main() {
 	mux.HandleFunc("/admin/logout/", a.handleLogout)
 	mux.HandleFunc("/admin/", a.requireAuth(a.handleAdmin))
 	mux.HandleFunc("/admin/projects/", a.requireAuth(a.handleProjects))
+	mux.HandleFunc("/admin/pillars/", a.requireAuth(a.handlePillar))
 	mux.HandleFunc("/admin/quotes/", a.requireAuth(a.handleQuotes))
 	mux.HandleFunc("/api/projects/", a.handleAPI)
 	mux.HandleFunc("/api/quotes/", a.handleQuotesAPI)

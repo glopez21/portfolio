@@ -1,0 +1,29 @@
+{{template "base_head" (dict "Title" (printf "%s projects | Portfolio CMS" .Label) "BodyClass" "dashboard pillar-page")}}
+<div class="breadcrumbs"><a href="/admin/">Home</a> › <span class="current">{{.Label}}</span></div>
+<div id="content">
+  <h1>{{.Label}} <span class="pillar-count">{{.Total}}</span></h1>
+  <div id="content-main">
+    <div class="module-header">
+      <p class="help">An evenly-arranged card per project in the {{.Key}} pillar — no vertical scroll marathon. <a href="/admin/">← Back to dashboard</a></p>
+    </div>
+
+    <div class="pillar-grid">
+      {{range .Projects}}
+      <div class="module pilcard project-card{{if .Featured}} featured-row{{end}}" data-pillar="{{.Pillar}}">
+        <div class="project-card-inner">
+          <h2 class="pillar-title">
+            <span class="pillar-dot pillar-{{.Pillar}}"></span>
+            {{.Title}}
+          </h2>
+          <div class="slug">{{if .Live}}live:{{.Live}}{{else}}{{.Pillar}} · {{.Slug}}{{end}}</div>
+          <div class="project-card-actions">
+            <a class="changelink" href="/admin/projects/{{.Slug}}/">Change</a>
+            <a class="deletelink" href="/admin/projects/{{.Slug}}/delete/">Delete</a>
+          </div>
+        </div>
+      </div>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{template "base_foot" .}}
