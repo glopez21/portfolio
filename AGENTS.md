@@ -111,10 +111,17 @@ as recurring). Findings verified to ground truth before recording:
   values — verify value *presence* with `awk -F= 'length($2)'`.
 - **misp/.env — REAL tracked secrets** (32-char MISP DB/root/admin
   passwords + THEHIVE_API_KEY, CORTEX_API_KEY). Forgejo-only (no GitHub
-  repo). Untrack + rotate if those services matter.
+  repo). **RESOLVED 2026-09-24**: `.env` removed from entire git history
+  (git-filter-repo `--path .env --invert-paths`), force-pushed to forgejo
+  main, working copy kept + git-ignored. Only `.env.example` (placeholder
+  `changeme_*`, empty API keys) remains.
 - **panoptesLab/.env — REAL tracked secrets** (VM creds, rabbitmq/db/vault
   passwords, 8-char). Tracked in Forgejo AND on private GitHub repo
-  `glopez21/panoptesLab`. Untrack from both.
+  `glopez21/panoptesLab`. **RESOLVED 2026-09-24**: `.env` purged from all
+  history via git-filter-repo, force-pushed to GitHub (HTTPS; the SSH
+  remote push fails — use `https://github.com/…` or `gh` credential
+  helper). Working copy kept + git-ignored. `ENV-USAGE.md` and
+  `roles/monitoring/templates/app-env.j2` keep only placeholder values.
 - **4rch3.io/ISSUES.md — REAL PORTAL_DEPLOY_SECRET** (49-char) in a
   tracked doc. Forgejo-only (GitHub copy has it scrubbed). Redact the
   line in the file on Forgejo.
