@@ -36,9 +36,11 @@
       <div class="module pillar-module pilcard" data-pillar="{{.Key}}">
         <div class="module-header">
           <h2 class="pillar-title">
-            <span class="pillar-dot pillar-{{.Key}}"></span>
-            {{pillarLabel .Key}}
-            <span class="pillar-count">{{len .Projects}}</span>
+            <a href="/admin/pillars/{{.Key}}/" class="pillar-link">
+              <span class="pillar-dot pillar-{{.Key}}"></span>
+              {{pillarLabel .Key}}
+              <span class="pillar-count">{{len .Projects}}</span>
+            </a>
           </h2>
         </div>
         <ul class="card-list">

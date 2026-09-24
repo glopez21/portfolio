@@ -12,14 +12,15 @@ Static frontend + Go admin CMS, containerized:
   compose mounts `../ai-quotes/instance/` → `/quotes-instance`). Exposes
   `/admin/quotes/` (CRUD + favorite/archive toggles) and a public
   `/api/quotes/random` endpoint.
-- `admin` (contact): the site's contact form posts urlencoded data to
-  `POST /api/contact/`, which appends one JSON line per message to
-  `CONTACT_FILE` (`/data/contact_messages.jsonl`, named `admin_data`
-  volume) and returns the literal body `OK` (the frontend's
-  `php-email-form` validate.js expects exactly `OK`). Messages are readable
-  at `/admin/contact/` (auth, newest first). The `admin_data` volume is
-  owned by uid 1000 — re-`chown` it if the volume ever gets recreated as
-  root and store starts failing.
+- `admin` (dashboard): `/admin/` is a dashboard landing — a stats row plus a
+  responsive card grid, one card per pillar (project/featured/quote/contact
+  counts). Each pillar card's title links to its per-pillar page.
+- `admin` (per-pillar pages): `/admin/pillars/<pillar>/` (auth) shows that
+  pillar's projects as an evenly-arranged card grid — one equal card per
+  project, tiles across the viewport instead of one vertical scroll marathon.
+  Pillar order + human labels come from one shared source (`pillarOrder` +
+  `pillarLabel` in `admin-go/main.go`, fed to templates via the `pillarLabel`
+  FuncMap) so the dashboard and pillar pages never drift.
 - `admin` (contact): the site's contact form posts urlencoded data to
   `POST /api/contact/`, which appends one JSON line per message to
   `CONTACT_FILE` (`/data/contact_messages.jsonl`, named `admin_data`
