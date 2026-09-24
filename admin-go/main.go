@@ -600,10 +600,24 @@ func (a *App) handleAdmin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	type summary struct {
-		Total  int
-		Groups []group
+		Total        int
+		Groups       []group
+		QuoteCount   int
+		ContactCount int
+		Featured     int
 	}
 	s := summary{Total: len(projects), Groups: groups}
+	if a.quotes != nil {
+		if n, err := a.quotes.Count(); err == nil {
+			s.QuoteCount = n
+		}
+	}
+	s.ContactCount = a.contactCount()
+	for _, p := range projects {
+		if p.Featured {
+			s.Featured++
+		}
+	}
 	a.render(w, "index.html", s)
 }
 
@@ -891,6 +905,22 @@ func (a *App) sendContactMail(msg contactMessage) error {
 }
 
 // handleContactAdmin lists stored contact submissions, newest first.
+func (a *App) contactCount() int {
+	a.mu.Lock()
+	data, err := os.ReadFile(a.cfg.ContactFile)
+	a.mu.Unlock()
+	if err != nil {
+		return 0
+	}
+	n := 0
+	for _, ln := range strings.Split(string(data), "\n") {
+		if strings.TrimSpace(ln) != "" {
+			n++
+		}
+	}
+	return n
+}
+
 func (a *App) handleContactAdmin(w http.ResponseWriter, r *http.Request) {
 	var msgs []contactMessage
 	a.mu.Lock()
