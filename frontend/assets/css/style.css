@@ -118,10 +118,12 @@ h1, h2, h3, h4, h5, h6 {
   98% { opacity: 1; }
 }
 
-/* Greek tagline: αρχή — the first principle */
+/* Rotating tagline: αρχή — the first principle, in many scripts */
 #header .brand-tag {
   margin: 0.4em 0 0;
-  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-family: "IBM Plex Mono", "Courier New", "Noto Sans CJK JP",
+    "Noto Sans CJK SC", "Noto Sans Egyptian Hieroglyphs",
+    "Noto Sans Cuneiform", "Noto Sans Devanagari", monospace;
   font-size: 12px;
   letter-spacing: 4px;
   color: rgba(24, 210, 110, 0.85);

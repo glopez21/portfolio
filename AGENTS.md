@@ -157,11 +157,20 @@ threat-pulse on m41n). Differences from the dev compose:
 
 - `frontend/index.html` — one-page site (hero, about, skills, portfolio,
   contact). Header brand is **4rch3.io** (`.cyber-brand`,
-  Share Tech Mono, green CRT glow + flicker; `.brand-tag` Greek
-  "αρχή · η πρώτη αρχή" sub-tagline in IBM Plex Mono; quote tagline below).
+  Share Tech Mono, green CRT glow + flicker; `.brand-tag` shows the motto
+  "αρχή · η πρώτη αρχή" — "arche · the first principle" — with the Greek
+  rendering as the no-JS fallback; quote tagline below).
   When scrolled, `#header.header-top` becomes a fixed bar and hides the
-  tagline (`h2`, `.social-links`, `.brand-tag`); the Greek tagline only
+  tagline (`h2`, `.social-links`, `.brand-tag`); the tagline only
   shows in the hero under the title.
+- `frontend/assets/js/brand-rotate.js` — rotates the `.brand-tag` to a new
+  script on every page load (no consecutive repeat via sessionStorage key
+  `4rch3.brandVariant`; index `0` checked via `raw === null`, never `|| -1`,
+  so Greek can't falsely read as "no previous"). Variants: Greek, Cyrillic
+  (Russian), Japanese kanji, Japanese kana, Chinese, Egyptian hieroglyphs
+  (symbolic), Sumerian cuneiform, Sanskrit. Glyphs render via the extended
+  `.brand-tag` font stack (Noto CJK JP/SC, Egyptian Hieroglyphs, Cuneiform,
+  Devanagari fallbacks).
 - Inner pages (`research.html`, `portfolio-details.html`) use a compact
   sticky `#inner-header` navbar: **4rch3.io** brand + Home/About/Portfolio/
   Research/Contact menu, no hero tagline/quote.
