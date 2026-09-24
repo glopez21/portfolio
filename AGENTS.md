@@ -96,6 +96,32 @@ repos got a new `github` remote (HTTPS — push auth comes from `gh`
 credential helper). `logsentry` on clu5t3r may lag its Forgejo main
 (m41n holds a merge of the web-UI + health-server lines).
 
+## Security sweep (2026-09-24, corrected)
+
+One-off audit of local repos + prod clu5t3r + git remotes (do not treat
+as recurring). Findings verified to ground truth before recording:
+
+- **alertflow — NO live public leak (false positive).** The repo was
+  public on GitHub and tracked `.env.alertflow`, but all three values
+  (`THREATPULSE_API_KEY`, `SPLUNK_HEC_TOKEN`, `ALERTFLOW_API_KEY`) are
+  committed **empty** (local HEAD, GitHub API, and the running container
+  all agree). Only non-secret config (URLs/topics/DB names) is present.
+  Made the repo private as a precaution; reversible. The earlier "live
+  leak" reading came from a `sed s/=.*/MASK/` that masks even empty
+  values — verify value *presence* with `awk -F= 'length($2)'`.
+- **misp/.env — REAL tracked secrets** (32-char MISP DB/root/admin
+  passwords + THEHIVE_API_KEY, CORTEX_API_KEY). Forgejo-only (no GitHub
+  repo). Untrack + rotate if those services matter.
+- **panoptesLab/.env — REAL tracked secrets** (VM creds, rabbitmq/db/vault
+  passwords, 8-char). Tracked in Forgejo AND on private GitHub repo
+  `glopez21/panoptesLab`. Untrack from both.
+- **4rch3.io/ISSUES.md — REAL PORTAL_DEPLOY_SECRET** (49-char) in a
+  tracked doc. Forgejo-only (GitHub copy has it scrubbed). Redact the
+  line in the file on Forgejo.
+- Clean: all published repos gitignore `.env`; SSH keys 600/644; only
+  privilized container = cadvisor (by design); dependency scans clean
+  (pip-audit 0, npm 0, go minimal); frontend JS has no hardcoded keys.
+
 ## Production (clu5t3r)
 
 `docker-compose.traefik.yml` deploys the same stack onto the clu5t3r
