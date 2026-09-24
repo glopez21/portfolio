@@ -332,6 +332,23 @@ resolve publicly yet).
   **removed** (nav "Resume" link dropped on all pages). A polished,
   restyled CV/skills section may be added back later.
 - Dark-cyber restyle of the Bootstrap template is pending.
+- **Go public — 4rch3.io (PLANNED for Sat 2026-09-26, Cloudflare Tunnel path).**
+  Decided 2026-09-24. Reminder lives in a user systemd timer
+  `4rch3-public-reminder.timer` (fires Sat 10:00 EDT; log
+  `~/.local/state/4rch3-public-reminder.log`). The site is **not public
+  yet**: public DNS has `*.4rch3.io → 192.168.1.33` unproxied (a private
+  LAN IP — external visitors can't reach it). Traefik on clu5t3r already
+  serves `4rch3.io`/`www` (200 + STS verified), TLS uses the `cloudflare`
+  DNS-01 certresolver, and a token-managed Cloudflare Tunnel is already
+  running (2026-09-1x logs, QUIC egress). **Plan (Option 1 — Tunnel):**
+  in the Cloudflare Zero Trust dashboard add public hostnames
+  `4rch3.io` + `www.4rch3.io` → `http://traefik`; keep **`admin.4rch3.io`
+  excluded** — its `cf-access-auth@file` middleware is NOT currently
+  enforced (`CF_ACCESS_ENFORCE` unset, defaults false), so it must not
+  become publicly routable yet. Then flip `*.4rch3.io` DNS A records to
+  proxied (orange cloud) on zone `d87ae55e99162af7957f730489b3a301`.
+  Verify from outside LAN that `https://4rch3.io` returns 200 + HSTS and
+  `admin.4rch3.io` is unreachable.
 - **analyst-agent (BLOCKED)**: its site entry says `status: planned` but
   there is **no code or repo anywhere** — not on clu5t3r
   (`~/projects/` holds only anubis, homelab, logsentry, portfolio), not on
