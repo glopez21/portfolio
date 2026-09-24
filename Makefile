@@ -1,4 +1,4 @@
-.PHONY: up down build logs ps sync clean screenshots diagrams og-image push a11y deploy-quotes
+.PHONY: up down build logs ps sync clean screenshots diagrams og-image push a11y deploy-quotes gh-publish
 
 # ---------------------------------------------------------------------- #
 # 4rch3.io portfolio — containerized site + Go admin CMS
@@ -62,6 +62,11 @@ a11y:
 ## Push to Forgejo origin (GitHub mirror follows automatically)
 push:
 	git push origin main
+
+## Publish the project repos to GitHub with a MINIMAL README (keeps the
+## full README on Forgejo main). Creates private repos if missing.
+gh-publish:
+	bash scripts/gh-publish.sh
 
 ## Mirror the canonical ai-quotes DB (m41n) to prod (clu5t3r) so the hero
 ## quote cycles on prod. Run after adding/editing quotes via the m41n admin.

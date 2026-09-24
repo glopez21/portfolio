@@ -75,12 +75,26 @@ Every portfolio-listed project is backed up on Forgejo, **all private** —
 directory, not the slug (e.g. slug `threatpulse` → repo `threat-pulse`,
 `n3xusdb` → `n3xusDB`, `lab` → `homelab`). Exceptions: `sentryd` points at
 the `logsentry` repo (its code lives in `logsentry/sentryd/`), and
-`analyst-agent` points at a repo still to be created from the clu5t3r copy.
-`n3xusDB` and `transitflow-nyc` also keep their GitHub `origin`; their
-Forgejo remote is named `forgejo` (same convention as all project repos).
-README polishing and going public is deferred; the GitHub side is mirrored
-manually by the user. Note: `logsentry` on clu5t3r may lag its Forgejo
-main (m41n holds a merge of the web-UI + health-server lines).
+`analyst-agent` has **no code anywhere** (BLOCKED — see Deferred).
+
+**Dual-README GitHub publishing**: each project repo is mirrored to
+`github.com/glopez21/<name>` with a **minimal** README (title, tagline,
+intent, tech stack, status) while Forgejo `main` keeps the **full**
+README as the source of truth. The minimal READMEs live in
+`scripts/gh-readmes/<name>.md` (generated from the real frontmatter by a
+one-off script; regen by hand if a project's tagline/intent/stack changes).
+`scripts/gh-publish.sh` (or `make gh-publish`) refreshes every repo: builds
+a detached worktree at `forgejo/main`, swaps `README.md` to the minimal
+version, force-pushes to GitHub `main` (creates the repo `--private` if
+missing, leaves existing visibility untouched), and never touches the
+Forgejo branch. Re-run it after any project README/frontmatter change.
+Note: `threat-pulse` on GitHub was fully replaced with its internal main
+(tree + minimal README, the curated Community Edition checkout was
+abandoned). `n3xusDB`, `transitflow-nyc`, `homelab`, `logsentry` keep
+their GitHub `origin`/`github` remote as shown by the script; all other
+repos got a new `github` remote (HTTPS — push auth comes from `gh`
+credential helper). `logsentry` on clu5t3r may lag its Forgejo main
+(m41n holds a merge of the web-UI + health-server lines).
 
 ## Production (clu5t3r)
 
@@ -318,3 +332,11 @@ resolve publicly yet).
   **removed** (nav "Resume" link dropped on all pages). A polished,
   restyled CV/skills section may be added back later.
 - Dark-cyber restyle of the Bootstrap template is pending.
+- **analyst-agent (BLOCKED)**: its site entry says `status: planned` but
+  there is **no code or repo anywhere** — not on clu5t3r
+  (`~/projects/` holds only anubis, homelab, logsentry, portfolio), not on
+  n4n0, not in `/home/w01f/backups/`, not on Forgejo (`Repository not
+  found`), and the `m41n` SSH host is unreachable (no `Host` entry, only a
+  leftover `IdentityFile ~/.ssh/m41n_cachyOS`). Until the user points us
+  at a real copy, it must **not** be created from fabricated content; the
+  GitHub publish list intentionally excludes it.
